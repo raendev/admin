@@ -1,7 +1,7 @@
 import * as React from "react"
 import useNear from "../../hooks/useNear"
 import { Dropdown } from ".."
-import css from "./Nav.module.css"
+import css from "./nav.module.css"
 
 export function Nav() {
   const { contract, wallet, signIn, signOut } = useNear()
