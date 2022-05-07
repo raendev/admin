@@ -1,4 +1,6 @@
 # .github/workflows/preview.yml
+# need --legacy-peer-deps because craco has a peer dep for react-scripts v4.  But it works locally
+
 name: PR Preview
 
 on:
@@ -21,7 +23,6 @@ jobs:
           persist-credentials: false
       - name: Install and Build
         run: |
-# need --legacy-peer-deps because craco has a peer dep for react-scripts v4.  But it works locally
           npm ci --legacy-peer-deps
           npm run build
       - name: Deploy preview
