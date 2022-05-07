@@ -4,29 +4,39 @@ import { readCustomSection } from "wasm-walrus-tools"
 import { ContractCodeView } from "near-api-js/lib/providers/provider"
 import { JSONSchema7 } from "json-schema"
 
+
 export async function fetchSchema(contract: string, near: naj.Near): Promise<JSONSchema7> {
   // TODO handle either HTTP endpoint or IPFS hash
-  const url = await fetchJsonAddress(contract, near)
+  const url_or_data = await fetchJsonAddressOrData(contract, near)
+
 
   // TODO cache schema JSON in localeStorage, return early here if available
 
-  const schema = fetch(url)
-    .then((response) => {
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
-      return response.json()
-    })
+  if (url_or_data.startsWith("https://")) {
+    return fetch(url_or_data)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
+        return response.json()
+      })
+  }
 
   // TODO validate schema adheres to JSONSchema7
-  return schema
+  return JSON.parse(url_or_data)
 }
 
-class NoCustomSectionError extends Error {
+class NoCustomSection extends Error {
   constructor() {
     super("Contract Wasm does not have a custom section called \"json\"")
   }
 }
 
-async function fetchJsonAddress(contract: string, near: naj.Near): Promise<string> {
+class DecompressionFailure extends Error {
+  constructor() {
+    super("Failed to decompile custom section")
+  }
+}
+
+async function fetchJsonAddressOrData(contract: string, near: naj.Near): Promise<string> {
   const code = await near.connection.provider.query({
     account_id: contract,
     finality: 'final',
@@ -34,12 +44,23 @@ async function fetchJsonAddress(contract: string, near: naj.Near): Promise<strin
   }) as ContractCodeView
   const wasm = Buffer.from(code.code_base64, "base64")
   const jsonCustomSection = await readCustomSection(wasm, "json")
-
   if (!jsonCustomSection) {
-    throw new NoCustomSectionError()
+    throw new NoCustomSection()
   }
 
-  return jsonCustomSection
+  let startOfJson = Buffer.from(jsonCustomSection.slice(0, 20)).toString('utf8');
+  // if link return string
+  if (startOfJson.startsWith("https://")) {
+    return Buffer.from(jsonCustomSection).toString('utf8');
+  }
+  // Else is compressed data
+  const brotli = await import("brotli-dec-wasm");
+  let decompressedData = brotli.brotliDec(jsonCustomSection);
+
+  if (!decompressedData) {
+    throw new DecompressionFailure()
+  }
+  return Buffer.from(decompressedData).toString("utf8");
 }
 
 export type Schema = { schema: { $ref: string } & JSONSchema7 }
