@@ -1,7 +1,5 @@
 
 // You can also use craco-alias plugin: https://github.com/risenforces/craco-alias
-console.log("hello")
-debugger;
 
 const webpack = require('webpack');
 

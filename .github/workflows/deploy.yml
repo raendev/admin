@@ -17,7 +17,8 @@ jobs:
           persist-credentials: false
       - name: Install and Build
         run: |
-          npm ci
+# need --legacy-peer-deps because craco has a peer dep for react-scripts v4.  But it works locally
+          npm ci --legacy-peer-deps
           npm run build
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.3.3
