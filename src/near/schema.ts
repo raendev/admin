@@ -48,13 +48,14 @@ async function fetchJsonAddressOrData(contract: string, near: naj.Near): Promise
     throw new NoCustomSection()
   }
 
+  let startOfJson = Buffer.from(jsonCustomSection.slice(0, 20)).toString('utf8');
   // if link return string
-  if (jsonCustomSection.startsWith("https://")) {
+  if (startOfJson.startsWith("https://")) {
     return Buffer.from(jsonCustomSection).toString('utf8');
   }
   // Else is compressed data
   const brotli = await import("brotli-dec-wasm");
-  let decompressedData = brotli.brotliDec(Buffer.from(jsonCustomSection));
+  let decompressedData = brotli.brotliDec(jsonCustomSection);
 
   if (!decompressedData) {
     throw new DecompressionFailure()
