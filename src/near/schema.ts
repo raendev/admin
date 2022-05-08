@@ -13,11 +13,12 @@ export async function fetchSchema(contract: string, near: naj.Near): Promise<JSO
   // TODO cache schema JSON in localeStorage, return early here if available
 
   if (url_or_data.startsWith("https://")) {
-    return fetch(url_or_data)
-      .then((response) => {
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
-        return response.json()
-      })
+    const schema = fetch(url_or_data)
+    .then((response) => {
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
+      return response.json()
+    })
+    return schema;
   }
 
   // TODO validate schema adheres to JSONSchema7
