@@ -20,6 +20,8 @@ type WrappedFormData = {
 
 const FormComponent = withTheme({})
 
+let mainTitle: string
+
 const Display: React.FC<React.PropsWithChildren<{
   result?: string
   error?: string
@@ -124,8 +126,9 @@ export function Form() {
 
   // update page title based on current contract & method; reset on component unmount
   useEffect(() => {
-    document.title = `${method ? `${snake(method)} ‹ ` : ''}${contract} ‹ TenK Admin`
-    return () => { document.title = 'TenK Admin' }
+    mainTitle = mainTitle || document.title
+    document.title = `${method ? `${snake(method)} ‹ ` : ''}${contract} ‹ ${mainTitle}`
+    return () => { document.title = mainTitle }
   }, [contract, method])
 
   // at first load, auto-submit if required arguments are fill in
