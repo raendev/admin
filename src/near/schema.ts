@@ -7,12 +7,12 @@ import { JSONSchema7 } from "json-schema"
 
 export async function fetchSchema(contract: string, near: naj.Near): Promise<JSONSchema7> {
   // TODO handle either HTTP endpoint or IPFS hash
-  const url_or_data = await fetchJsonAddressOrData(contract, near)
+  const urlOrData = await fetchJsonAddressOrData(contract, near)
 
 
   // TODO cache schema JSON in localeStorage, return early here if available
 
-  if (url_or_data.startsWith("https://")) {
+  if (urlOrData.startsWith("https://")) {
     const schema = fetch(url_or_data)
     .then((response) => {
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
@@ -22,7 +22,7 @@ export async function fetchSchema(contract: string, near: naj.Near): Promise<JSO
   }
 
   // TODO validate schema adheres to JSONSchema7
-  return JSON.parse(url_or_data)
+  return JSON.parse(urlOrData)
 }
 
 class NoCustomSection extends Error {
