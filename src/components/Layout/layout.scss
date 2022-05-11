@@ -2,19 +2,19 @@
 @import "./bootstrap.css";
 
 $white: white !default;
-$black: black !default;
+$black: #222 !default;
 $primary: #e73b93 !default;
 $secondary: #a463b0 !default;
 $tertiary: #aad055 !default;
 
 :root {
   /* Typographic Scale */
-  --base-font-size: 14px;
+  --base-font-size: 16px;
   @media (min-width: 415px) {
-    --base-font-size: 16px;
+    --base-font-size: 18px;
   }
   @media (min-width: 600px) {
-    --base-font-size: 18px;
+    --base-font-size: 22px;
   }
 
   /* Font Family */
@@ -158,12 +158,6 @@ strong {
   font-weight: var(--fw-bold);
 }
 
-em {
-  color: var(--primary);
-  font-style: inherit;
-  font-weight: inherit;
-}
-
 label {
   display: block;
   margin-top: var(--spacing-m);
@@ -185,9 +179,8 @@ pre {
 }
 
 pre {
-  white-space: pre-wrap;
-  word-break: break-word;
   margin: 5px 0 0;
+  overflow-x: scroll;
 }
 
 pre code {
@@ -234,6 +227,9 @@ button[type=submit],
   margin-top: var(--spacing-l);
 }
 
+input {
+  caret-color: var(--primary);
+}
 input,
 select {
   background-color: var(--bg);
@@ -312,7 +308,7 @@ input::selection {
 .container {
   margin-left: auto;
   margin-right: auto;
-  max-width: calc(75 * var(--spacing-m));
+  max-width: calc(35 * var(--spacing-m));
   padding-left: var(--spacing-l);
   padding-right: var(--spacing-l);
 }
@@ -356,4 +352,10 @@ input[type=checkbox] {
   height: 100%;
   align-items: center;
   gap: var(--spacing-xs);
+}
+
+.errorHint {
+  background-color: var(--bg-red);
+  padding: var(--spacing-s);
+  border-radius: var(--br-small);
 }
