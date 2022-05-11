@@ -4,16 +4,14 @@ import { readCustomSection } from "wasm-walrus-tools"
 import { ContractCodeView } from "near-api-js/lib/providers/provider"
 import { JSONSchema7 } from "json-schema"
 
-
 export async function fetchSchema(contract: string, near: naj.Near): Promise<JSONSchema7> {
   // TODO handle either HTTP endpoint or IPFS hash
   const urlOrData = await fetchJsonAddressOrData(contract, near)
 
-
   // TODO cache schema JSON in localeStorage, return early here if available
 
   if (urlOrData.startsWith("https://")) {
-    const schema = fetch(url_or_data)
+    const schema = fetch(urlOrData)
     .then((response) => {
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
       return response.json()
