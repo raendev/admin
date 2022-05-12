@@ -21,13 +21,19 @@ export function Home() {
         Install:
       </p>
       <pre>
-        <code>npm install --global near-cli @ahalabs/cli</code>
+        <code>cargo install raen</code>
+      </pre>
+      <p>
+        This will eventually wrap near-cli, but for now you need it too:
+      </p>
+      <pre>
+        <code>npm install --global near-cli</code>
       </pre>
       <p>
         Build (Rust only; other langs <a href="https://github.com/bytecodealliance/wit-bindgen">coming soon</a>): 
       </p>
       <pre>
-        <code>aha build</code>
+        <code>raen build</code>
       </pre>
       <p>
         Deploy as usual:
@@ -36,7 +42,7 @@ export function Home() {
         <code>near deploy</code>
       </pre>
       <p>
-        Then enter your contract name below:
+        Then enter your contract's account name below:
       </p>
       <form onSubmit={e => {
         e.preventDefault()
@@ -84,16 +90,16 @@ export function Home() {
         NEAR runs Wasm. Any Wasm language, though Rust has the most mature tooling and documentation.
       </p>
       <p>
-        When you build your smart contracts with <code>@ahalabs/cli</code>, it injects a full Wit specification for your contract into a Wasm <a href="https://webassembly.github.io/spec/core/appendix/custom.html">Custom Section</a>. It compresses it with <a href="https://www.brotli.org/">brotli</a> to reduce <a href="https://docs.near.org/docs/concepts/storage-staking">storage</a> requirements.
+        When you build your smart contracts with <code>raen</code>, it injects a full Wit specification for your contract into a Wasm <a href="https://webassembly.github.io/spec/core/appendix/custom.html">Custom Section</a>. It compresses it with <a href="https://www.brotli.org/">brotli</a> to reduce <a href="https://docs.near.org/docs/concepts/storage-staking">storage</a> requirements.
         </p>
       <p>
-        How much does this increase your contract size? In our tests so far, contracts compiled with <code>@ahalabs/cli</code> end up <strong>smaller</strong> than before!
+        How much does this increase your contract size? In our tests so far, contracts compiled with <code>raen</code> end up <strong>smaller</strong> than before!
         </p>
       <p>
-        <code>@ahalabs/cli</code> uses <a href="https://ahalabs.dev/posts/wit-bringing-types-to-near-contracts"><code>witme</code> to generate the Wit</a> and inject it into the Wasm Custom Section. Under the hood, <code>witme</code> uses <a href="https://github.com/AhaLabs/wasm-walrus-tools">walrus</a>, which optimizes the Wasm enough to reduce the total contract size, even with the Wit. We will add full benchmarks soon.
+        <code>raen</code> uses <a href="https://ahalabs.dev/posts/wit-bringing-types-to-near-contracts"><code>witme</code> to generate the Wit</a> and inject it into the Wasm Custom Section. Under the hood, <code>witme</code> uses <a href="https://github.com/AhaLabs/wasm-walrus-tools">walrus</a>, which optimizes the Wasm enough to reduce the total contract size, even with the Wit. We will add full benchmarks soon.
       </p>
       <p>
-        (Note that currently a JSON <a href="https://ajv.js.org/">AJV</a> specification is added to a Wasm Custom Section <em>instead of</em> Wit, since 1. No Wit-to-AJV tooling currently exists for browsers, 2. Close Up relies on AJV, and 3. No other tooling currently makes use of Wit. The AJV custom section will be swapped for a Wit custom section once Wit settles on an <a href="https://github.com/bytecodealliance/wit-bindgen/issues/214#issuecomment-1116237538">initial syntax version</a>.)
+        (Note that currently a JSON <a href="https://ajv.js.org/">AJV</a> specification is added to a Wasm Custom Section <em>instead of</em> Wit, since 1. No Wit-to-AJV tooling currently exists for browsers, 2. This admin panel relies on AJV, and 3. No other tooling currently makes use of Wit. The AJV custom section will be swapped for a Wit custom section once Wit settles on an <a href="https://github.com/bytecodealliance/wit-bindgen/issues/214#issuecomment-1116237538">initial syntax version</a>.)
       </p>
       <p>
         This admin panel then reads in that Custom Section, decompresses the brotli, and uses <a href="https://github.com/rjsf-team/react-jsonschema-form">react-jsonschema-form</a> to allow interacting with the contract.
