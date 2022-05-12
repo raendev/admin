@@ -1,15 +1,15 @@
 {
-  "short_name": "Close Up",
-  "name": "NEAR Smart Contract Explorer",
+  "short_name": "raen admin",
+  "name": "Admin panel / contract explorer for NEAR contracts built with raen",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "favicon.svg",
       "sizes": "32x32",
-      "type": "image/x-icon"
+      "type": "image/svg+xml"
     },
     {
-      "src": "apple-touch-icon.png",
-      "type": "image/png",
+      "src": "favicon.svg",
+      "type": "image/svg+xml",
       "sizes": "400x400"
     }
   ],
