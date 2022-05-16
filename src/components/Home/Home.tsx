@@ -36,10 +36,10 @@ export function Home() {
         <code>raen build</code>
       </pre>
       <p>
-        Deploy as usual:
+        Deploy:
       </p>
       <pre>
-        <code>near deploy</code>
+        <code>near deploy --wasmFile target/res/CRATE_NAME.wasm</code>
       </pre>
       <p>
         Then enter your contract's account name below:
