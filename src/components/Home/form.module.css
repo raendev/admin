@@ -1,0 +1,59 @@
+.form {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.border {
+  align-items: center;
+  border: 2px solid var(--gray-9);
+  border-radius: var(--br-base);
+  display: flex;
+  padding-left: var(--spacing-s);
+}
+
+.border:focus-within {
+  border-color: var(--fg);
+}
+
+.input {
+  border: none;
+  border-radius: 0;
+  margin: 0 var(--spacing-xs);
+  padding: var(--spacing-s) 0;
+}
+
+.label {
+  cursor: pointer;
+  display: inline;
+  margin-top: 0;
+}
+
+.label svg {
+  display: block;
+}
+
+.button {
+  background-color: transparent;
+  border-left: 2px solid var(--gray-9);
+  border-radius: 0 var(--br-base) var(--br-base) 0;
+  color: inherit;
+  font-family: var(--monospace);
+  margin: 0;
+  padding: var(--spacing-s) var(--spacing-m);
+}
+
+.button[disabled] {
+  background: transparent;
+  color: var(--gray-5);
+}
+
+.button:hover,
+.button:focus {
+  top: 0;
+}
+
+.input:focus + .button {
+  border-left-color: var(--fg);
+}

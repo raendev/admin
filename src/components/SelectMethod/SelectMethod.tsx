@@ -9,7 +9,6 @@ type Item = {
 }
 
 type Items = {
-  'Admin Methods'?: Item[]
   'Change Methods'?: Item[]
   'View Methods': Item[]
 }

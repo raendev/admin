@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useParams } from "react-router-dom"
 import { init } from "../../near"
-import { Form, Layout, NotFound } from ".."
+import { Form, NotFound } from ".."
 
 export function Contract() {
   const { contract } = useParams<{ contract: string }>()
@@ -22,11 +22,11 @@ export function Contract() {
   }
 
   return (
-    <Layout>
+    <div className="container">
       {errorMessage
         ? <NotFound>{errorMessage}</NotFound>
         : <Form />
       }
-    </Layout>
+    </div>
   )
 }

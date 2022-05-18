@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { Contract, Home } from "./components"
 import { HashRouter, Routes, Route } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
+import "./styles/global.scss"
 
 ReactDOM.render(
   <React.StrictMode>

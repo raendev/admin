@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { withTheme } from "@rjsf/core";
+import FormComponent from "@rjsf/core";
 import snake from "to-snake-case";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import useNear from "../../hooks/useNear"
@@ -17,8 +17,6 @@ type FormData = {
 type WrappedFormData = {
   formData?: FormData
 }
-
-const FormComponent = withTheme({})
 
 let mainTitle: string
 

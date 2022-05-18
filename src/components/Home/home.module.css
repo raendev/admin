@@ -1,0 +1,44 @@
+.hero {
+  background: var(--dark) url(./circles.svg);
+  background-size: calc(max(100%, 1440px));
+  background-repeat: no-repeat;
+  color: var(--white);
+  text-align: center;
+}
+
+.wave svg {
+  --color: var(--light);
+  display: block;
+  margin-top: var(--spacing-xxl);
+  transform: translateY(2px);
+  z-index: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .wave svg {
+    --color: var(--black);
+  }
+}
+
+.lead {
+  color: #959BB0;
+  font-size: 0.8em;
+}
+
+.lead strong {
+  color: var(--fg);
+}
+
+.body {
+  margin-top: var(--spacing-l);
+}
+
+.body h2:first-child:after {
+  content: ' 👇🏿';
+}
+
+@media(prefers-color-scheme: dark) {
+  .body h2:first-child:after {
+    content: ' 👇🏻';
+  }
+}

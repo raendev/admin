@@ -1,11 +1,11 @@
 @import "./a11y.css";
 @import "./bootstrap.css";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Source+Code+Pro&display=swap');
 
-$white: white !default;
-$black: #222 !default;
-$primary: #e73b93 !default;
-$secondary: #a463b0 !default;
-$tertiary: #aad055 !default;
+$light: #f0f0f0;
+$white: #fff;
+$dark: #3A3D49;
+$black: #000;
 
 :root {
   /* Typographic Scale */
@@ -18,13 +18,12 @@ $tertiary: #aad055 !default;
   }
 
   /* Font Family */
-  --sans: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  --sans: Inter, sans-serif;
   --monospace: "Source Code Pro", monospace;
 
   /* Font Weights */
-  --fw-regular: 400;
-  --fw-bold: 600;
-  --fw-black: 700;
+  --fw-regular: 500;
+  --fw-bold: 700;
 
   /* Line Heights */
   --lh-headings: 1.1;
@@ -45,19 +44,17 @@ $tertiary: #aad055 !default;
   --input-height--small: 40px;
 
   /* Border Radius */
-  --br-base: 1000px;
+  --br-base: 10px;
   --br-small: 4px;
 
   /* Colors */
-  /* TODO: move these base colors to settings.json or similar */
+  --light: #{$light};
   --white: #{$white};
+  --dark: #{$dark};
   --black: #{$black};
-  --primary: #{$primary};
-  --secondary: #{$secondary};
-  --tertiary: #{$tertiary};
 
   --fg: var(--black);
-  --bg: var(--white);
+  --bg: var(--light);
 
   --gray-1: #{adjust-color($black, $alpha: -0.9)};
   --gray-2: #{adjust-color($black, $alpha: -0.8)};
@@ -67,33 +64,38 @@ $tertiary: #aad055 !default;
   --gray-6: #{adjust-color($black, $alpha: -0.4)};
   --gray-7: #{adjust-color($black, $alpha: -0.3)};
   --gray-8: #{adjust-color($black, $alpha: -0.2)};
+  --gray-9: #{adjust-color($black, $alpha: -0.1)};
 
   --red: #fc5b5b;
   --bg-red: #{adjust-color(#fc5b5b, $alpha: -0.9)};
-  @media (prefers-color-scheme: dark) {
-    --bg: var(--black);
-    --fg: var(--white);
+}
 
-    --gray-1: #{adjust-color($white, $alpha: -0.9)};
-    --gray-2: #{adjust-color($white, $alpha: -0.8)};
-    --gray-3: #{adjust-color($white, $alpha: -0.7)};
-    --gray-4: #{adjust-color($white, $alpha: -0.6)};
-    --gray-5: #{adjust-color($white, $alpha: -0.5)};
-    --gray-6: #{adjust-color($white, $alpha: -0.4)};
-    --gray-7: #{adjust-color($white, $alpha: -0.3)};
-    --gray-8: #{adjust-color($white, $alpha: -0.2)};
+@mixin dark {
+  --bg: var(--black);
+  --fg: var(--light);
 
-    --red: #ff8588;
-    --bg-red: #{adjust-color(#ff8588, $alpha: -0.9)};
+  --gray-1: #{adjust-color($light, $alpha: -0.9)};
+  --gray-2: #{adjust-color($light, $alpha: -0.8)};
+  --gray-3: #{adjust-color($light, $alpha: -0.7)};
+  --gray-4: #{adjust-color($light, $alpha: -0.6)};
+  --gray-5: #{adjust-color($light, $alpha: -0.5)};
+  --gray-6: #{adjust-color($light, $alpha: -0.4)};
+  --gray-7: #{adjust-color($light, $alpha: -0.3)};
+  --gray-8: #{adjust-color($light, $alpha: -0.2)};
+  --gray-9: #{adjust-color($light, $alpha: -0.1)};
+
+  --red: #ff8588;
+  --bg-red: #{adjust-color(#ff8588, $alpha: -0.9)};
+}
+
+.dark {
+  @include dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    @include dark;
   }
-}
-
-@function light($color) {
-  @return adjust-color($color, $saturation: 53%, $lightness: 15%);
-}
-
-@function soft($color) {
-  @return adjust-color($color, $alpha: -0.85);
 }
 
 * {
@@ -124,7 +126,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: var(--fw-black);
+  font-weight: var(--fw-regular);
   margin: 0;
   line-height: var(--lh-headings);
 }
@@ -138,20 +140,25 @@ picture {
 a,
 .link,
 a:visited {
-  color: var(--primary);
-  padding: 0;
+  color: var(--fg);
+  padding: 0 1px;
+  margin: 0 -1px;
+  position: relative;
   text-decoration: none;
+  border-bottom: 1px solid var(--gray-3);
 }
 a:hover,
 a:focus,
 .link:hover,
 .link:focus {
-  color: var(--secondary);
-  text-decoration: underline;
+  background: linear-gradient(to top right, rgba(61, 79, 104), var(--dark));
+  border-bottom-color: transparent;
+  border-radius: var(--br-small) 0 var(--br-small) 0;
+  color: var(--white);
 }
 a:active,
 .link:active {
-  color: var(--tertiary);
+  top: 2px;
 }
 
 strong {
@@ -208,6 +215,7 @@ button,
 .button,
 input,
 select {
+  border-radius: var(--br-base);
   font: inherit;
   outline: none;
 }
@@ -215,7 +223,6 @@ select {
 button,
 .button {
   background-color: var(--fg);
-  border-radius: var(--br-small);
   border: none;
   color: var(--bg);
   cursor: pointer;
@@ -227,14 +234,10 @@ button[type=submit],
   margin-top: var(--spacing-l);
 }
 
-input {
-  caret-color: var(--primary);
-}
 input,
 select {
-  background-color: var(--bg);
-  border: 1px solid var(--gray-3);
-  border-radius: var(--br-small);
+  background-color: transparent;
+  border: 2px solid var(--gray-9);
   color: inherit;
 }
 
@@ -282,7 +285,7 @@ input:active,
 select:hover,
 select:focus,
 select:active {
-  border-color: var(--gray-5);
+  border-color: var(--fg);
 }
 
 select {
