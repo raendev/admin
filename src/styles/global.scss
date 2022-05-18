@@ -37,6 +37,7 @@ $black: #000;
   --spacing-l: calc(var(--base-spacing) * 3);
   --spacing-xl: calc(var(--base-spacing) * 4);
   --spacing-xxl: calc(var(--base-spacing) * 5);
+  --max-width: calc(35 * var(--spacing-m));
 
   /* Sizes */
   --header-height: 80px;
@@ -68,6 +69,7 @@ $black: #000;
 
   --red: #fc5b5b;
   --bg-red: #{adjust-color(#fc5b5b, $alpha: -0.9)};
+  --bg-red: linear-gradient(to bottom right, rgb(75, 61, 88), rgb(80, 73, 79));
 }
 
 @mixin dark {
@@ -85,7 +87,6 @@ $black: #000;
   --gray-9: #{adjust-color($light, $alpha: -0.1)};
 
   --red: #ff8588;
-  --bg-red: #{adjust-color(#ff8588, $alpha: -0.9)};
 }
 
 .dark {
@@ -311,7 +312,7 @@ input::selection {
 .container {
   margin-left: auto;
   margin-right: auto;
-  max-width: calc(35 * var(--spacing-m));
+  max-width: var(--max-width);
   padding-left: var(--spacing-l);
   padding-right: var(--spacing-l);
 }
@@ -358,7 +359,7 @@ input[type=checkbox] {
 }
 
 .errorHint {
-  background-color: var(--bg-red);
+  background: var(--bg-red);
   padding: var(--spacing-s);
   border-radius: var(--br-small);
 }

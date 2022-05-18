@@ -3,6 +3,7 @@
   justify-content: center;
   flex-direction: column;
   align-items: center;
+  position: relative;
 }
 
 .border {
@@ -56,4 +57,12 @@
 
 .input:focus + .button {
   border-left-color: var(--fg);
+}
+
+.error {
+  position: absolute;
+  width: var(--max-width);
+  max-width: 100%;
+  top: 100%;
+  z-index: 1;
 }

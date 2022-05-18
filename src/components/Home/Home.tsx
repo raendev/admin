@@ -11,7 +11,7 @@ export function Home() {
       <div className={`dark ${css.hero}`}>
         <Logo />
         <div className="container">
-          <h1>Raen makes it easy to explore contracts on NEAR.</h1>
+          <h1>RAEN makes it easy to explore contracts on NEAR.</h1>
           <p className={css.lead}>
             Enter a contract name below (i.e. <strong>v2.tenk.testnet</strong>)
           </p>

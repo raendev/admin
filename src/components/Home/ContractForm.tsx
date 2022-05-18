@@ -59,7 +59,7 @@ export const ContractForm = () => {
         </button>
       </div>
       {error && (
-        <div className="errorHint">{error}</div>
+        <div className={`errorHint ${css.error}`}>{error}</div>
       )}
     </form>
   )
