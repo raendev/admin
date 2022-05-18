@@ -1,4 +1,5 @@
 export * from "./Contract/Contract"
+export * from "./ContractForm/ContractForm"
 export * from "./Dropdown/Dropdown"
 export * from "./Form/Form"
 export * from "./Home/Home"

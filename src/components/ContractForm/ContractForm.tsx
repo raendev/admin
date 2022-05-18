@@ -38,8 +38,8 @@ export const ContractForm = () => {
         <label className={css.label} htmlFor="customContract">
           <svg
             viewBox="0 0 288 288"
-            height="var(--spacing-l)"
-            width="var(--spacing-l)"
+            height="1.5em"
+            width="1.5em"
             style={{ fill: "var(--fg)" }}
           >
             <desc>NEAR</desc>

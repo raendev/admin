@@ -1,7 +1,7 @@
 import React from "react"
 import featuredContracts from "./featured-contracts.json"
 import { Logo } from ".."
-import { ContractForm } from "./ContractForm"
+import { ContractForm } from ".."
 import { Link } from "react-router-dom";
 import css from "./home.module.css"
 
@@ -9,7 +9,9 @@ export function Home() {
   return (
     <>
       <div className={`dark ${css.hero}`}>
-        <Logo />
+        <div className={css.logo}>
+          <Logo />
+        </div>
         <div className="container">
           <h1>RAEN makes it easy to explore contracts on NEAR.</h1>
           <p className={css.lead}>
@@ -32,7 +34,7 @@ export function Home() {
           <code>cargo install raen</code>
         </pre>
         <p>
-          This will eventually wrap near-cli, but for now you need it too:
+          This will eventually wrap near-cli, but for now you need both:
         </p>
         <pre>
           <code>npm install --global near-cli</code>

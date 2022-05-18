@@ -6,6 +6,10 @@
   text-align: center;
 }
 
+.logo {
+  text-align: left;
+}
+
 .wave svg {
   --color: var(--light);
   display: block;
