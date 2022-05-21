@@ -75,6 +75,7 @@ function hasAllowProperty(obj: {}): obj is { allow: string[] } {
 type MethodDefinition = {
   additionalProperties?: boolean
   contractMethod?: "view" | "change"
+  allow?: string[]
   properties?: {
     args: {
       additionalProperties: boolean
@@ -184,7 +185,7 @@ export async function getSchema(contract: string): Promise<SchemaInterface> {
   }
 
   async function canCall(method: string, account: string): Promise<boolean> {
-    const def = schema.definitions?.[method]
+    const def = getDefinition(method)
 
     // if no definition found for `method` in `schema`, then it is never callable
     if (!def) return false

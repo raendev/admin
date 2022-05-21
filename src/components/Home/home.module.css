@@ -1,8 +1,4 @@
 .hero {
-  background: var(--dark) url(./circles.svg);
-  background-size: calc(max(100%, 1440px));
-  background-repeat: no-repeat;
-  color: var(--white);
   text-align: center;
 }
 

@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import FormComponent from "@rjsf/core";
 import snake from "to-snake-case";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom"
+import { useParams, useSearchParams } from "react-router-dom"
 import useNear from "../../hooks/useNear"
-import { Selector } from ".."
 
 import css from "./form.module.css"
 
@@ -81,7 +80,6 @@ export function Form() {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<any>()
   const schema = method && getMethod(method)?.schema
-  const navigateRaw = useNavigate()
 
   const setFormData = useMemo(() => ({ formData: newFormData }: WrappedFormData) => {
     setSearchParams(
@@ -90,11 +88,11 @@ export function Form() {
     )
   }, [setSearchParams])
 
-  const navigate = useMemo(() => (path: string) => {
+  // reset result and error when URL changes
+  useEffect(() => {
     setResult(undefined)
     setError(undefined)
-    navigateRaw(path)
-  }, [navigateRaw])
+  }, [contract, method]);
 
 
   const onSubmit = useMemo(() => async ({ formData }: WrappedFormData) => {
@@ -143,14 +141,6 @@ export function Form() {
   return (
     <>
       <div className="columns">
-        <Selector
-          value={method && snake(method)}
-          onSelected={newMethod => {
-            if (method !== newMethod) {
-              navigate(`/${contract}/${newMethod}`)
-            }
-          }}
-        />
         <label>
           <input
             type="checkbox"

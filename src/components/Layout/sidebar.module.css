@@ -1,0 +1,17 @@
+.logo {
+  text-align: center;
+}
+
+.sidebar {
+  width: 300px;
+  position: relative;
+}
+
+.arrow {
+  --width: 12px;
+  border: var(--width) solid transparent;
+  border-radius: var(--br-small);
+  border-bottom-color: var(--dark);
+  position: absolute;
+  top: calc(-1 * var(--width));
+}

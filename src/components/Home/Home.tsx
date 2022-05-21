@@ -8,7 +8,7 @@ import css from "./home.module.css"
 export function Home() {
   return (
     <>
-      <div className={`dark ${css.hero}`}>
+      <div className={`bokeh ${css.hero}`}>
         <div className={css.logo}>
           <Logo />
         </div>

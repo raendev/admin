@@ -1,0 +1,22 @@
+.layout {
+  display: flex;
+}
+
+.layout > *:last-child {
+  flex: 1;
+}
+
+.topBar {
+  align-items: center;
+  background-color: var(--dark);
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-m);
+}
+
+.tippityTop {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-m);
+}

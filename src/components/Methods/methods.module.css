@@ -1,0 +1,14 @@
+.restrictedTo:after,
+.crown:after {
+  background-image: url('./chevron.svg');
+  background-size: cover;
+  content: ' ';
+  display: block;
+  width: var(--spacing-m);
+  height: var(--spacing-m);
+}
+
+.restrictedTo {
+  color: var(--gray-6);
+}
+

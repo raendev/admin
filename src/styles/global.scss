@@ -68,7 +68,6 @@ $black: #000;
   --gray-9: #{adjust-color($black, $alpha: -0.1)};
 
   --red: #fc5b5b;
-  --bg-red: #{adjust-color(#fc5b5b, $alpha: -0.9)};
   --bg-red: linear-gradient(to bottom right, rgb(75, 61, 88), rgb(80, 73, 79));
 }
 
@@ -85,12 +84,29 @@ $black: #000;
   --gray-7: #{adjust-color($light, $alpha: -0.3)};
   --gray-8: #{adjust-color($light, $alpha: -0.2)};
   --gray-9: #{adjust-color($light, $alpha: -0.1)};
-
-  --red: #ff8588;
 }
 
 .dark {
   @include dark;
+}
+
+.bokeh {
+  --bg: var(--dark);
+  --fg: var(--white);
+
+  --gray-1: #{adjust-color($white, $alpha: -0.9)};
+  --gray-2: #{adjust-color($white, $alpha: -0.8)};
+  --gray-3: #{adjust-color($white, $alpha: -0.7)};
+  --gray-4: #{adjust-color($white, $alpha: -0.6)};
+  --gray-5: #{adjust-color($white, $alpha: -0.5)};
+  --gray-6: #{adjust-color($white, $alpha: -0.4)};
+  --gray-7: #{adjust-color($white, $alpha: -0.3)};
+  --gray-8: #{adjust-color($white, $alpha: -0.2)};
+  --gray-9: #{adjust-color($white, $alpha: -0.1)};
+
+  background: var(--bg) url(./circles.svg);
+  background-size: calc(max(100%, 1440px));
+  background-repeat: no-repeat;
 }
 
 @media (prefers-color-scheme: dark) {
