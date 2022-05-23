@@ -84,6 +84,9 @@ $black: #000;
   --gray-7: #{adjust-color($light, $alpha: -0.3)};
   --gray-8: #{adjust-color($light, $alpha: -0.2)};
   --gray-9: #{adjust-color($light, $alpha: -0.1)};
+
+  background-color: var(--bg);
+  color: var(--fg);
 }
 
 .dark {
@@ -107,6 +110,7 @@ $black: #000;
   background: var(--bg) url(./circles.svg);
   background-size: calc(max(100%, 1440px));
   background-repeat: no-repeat;
+  color: var(--fg);
 }
 
 @media (prefers-color-scheme: dark) {
