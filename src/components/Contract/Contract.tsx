@@ -22,7 +22,13 @@ export function Contract() {
   }
 
   if (errorMessage) {
-    return <NotFound>{errorMessage}</NotFound>
+    return (
+      <Layout>
+        <NotFound>
+          {errorMessage}
+        </NotFound>
+      </Layout>
+    )
   }
 
   return <Layout><Form /></Layout>
