@@ -4,6 +4,8 @@
 }
 
 .restrictedTo,
-.forbidden {
+.forbidden,
+.forbidden:focus,
+.forbidden:hover {
   color: var(--gray-6);
 }
