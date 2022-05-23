@@ -1,14 +1,9 @@
-.restrictedTo:after,
-.crown:after {
-  background-image: url('./chevron.svg');
-  background-size: cover;
-  content: ' ';
-  display: block;
-  width: var(--spacing-m);
-  height: var(--spacing-m);
+.restrictedTo {
+  display: flex;
+  gap: var(--spacing-xs);
 }
 
-.restrictedTo {
+.restrictedTo,
+.forbidden {
   color: var(--gray-6);
 }
-

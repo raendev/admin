@@ -8,7 +8,7 @@ import "./styles/global.scss"
 
 ReactDOM.render(
   <React.StrictMode>
-    <TooltipProvider>
+    <TooltipProvider delayDuration={0}>
       <HashRouter>
         <Routes>
           <Route path="/" element={<Home />} />

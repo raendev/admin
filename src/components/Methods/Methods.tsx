@@ -4,10 +4,11 @@ import toSnake from "to-snake-case";
 import useNear from '../../hooks/useNear';
 import { Section } from './Section';
 import { Root as Tooltip, Trigger, Content, Arrow } from '@radix-ui/react-tooltip';
+import { Crown } from './Crown'
 import css from './methods.module.css';
 
 type Items = {
-  'Change Methods'?: JSX.Element[]
+  'Change Methods': JSX.Element[]
   'View Methods': JSX.Element[]
 }
 
@@ -24,18 +25,29 @@ export const Methods = () => {
   const [items, setItems] = useState<Items>()
   const user = wallet?.getAccountId() as string
 
-  const toItem = useMemo(() => (camel: string) => {
+  const toItem = useMemo(() => async (camel: string) => {
     const snake = toSnake(camel)
-    const allow = getDefinition(camel)?.allow
+    const restrictedTo = getDefinition(camel)?.allow
+    const allowed = await canCall(camel, user)
 
-    const Tip = allow && (
+    const Tip = restrictedTo && (
       <Tooltip>
         <Trigger asChild>
-          <span className={`visuallyHidden ${css.crown}`}>restricted</span>
+          <span>
+            <span className="visuallyHidden">Restricted</span>
+            <Crown />
+          </span>
         </Trigger>
-        <Content>
-          <div className={css.restrictedTo}>Restricted to: </div>
-          <div>{allow.join(', ')}</div>
+        <Content className="tooltip">
+          <div className={css.restrictedTo}>
+            <span>Restricted to:</span>
+            <Crown fill="var(--gray-6)" />
+          </div>
+          <div>
+            {restrictedTo
+              .map(x => x.replace(/^::/, ''))
+              .join(', ')}
+          </div>
           <Arrow />
         </Content>
       </Tooltip>
@@ -45,28 +57,26 @@ export const Methods = () => {
       return <div key={camel}>{snake}{Tip}</div>
     }
 
-    return <Link to={`/${contract}/${camel}`} key={camel}>{snake}{Tip}</Link>
-  }, [contract, currentMethod, getDefinition])
+    return (
+      <Link
+        className={allowed ? undefined : css.forbidden}
+        key={camel}
+        to={`/${contract}/${camel}`}
+      >
+        {snake}
+        {Tip}
+      </Link>
+    )
+  }, [canCall, contract, currentMethod, getDefinition, user])
 
   useEffect(() => {
     (async () => {
-      const itemsPartial: Items = { 'View Methods': viewMethods.map(toItem) }
-
-      if (contract && user) {
-        const allowed = await Promise.all(
-          changeMethods.map(method => canCall(method, user))
-        )
-
-        const filteredChangeMethods = changeMethods.filter((_, i) => allowed[i])
-
-        if (filteredChangeMethods.length > 0) {
-          itemsPartial['Change Methods'] = filteredChangeMethods.map(toItem)
-        }
-      }
-
-      setItems(itemsPartial)
+      setItems({
+        'View Methods': await Promise.all(viewMethods.map(toItem)),
+        'Change Methods': await Promise.all(changeMethods.map(toItem)),
+      })
     })()
-  }, [contract, canCall, viewMethods, changeMethods, user, toItem]);
+  }, [viewMethods, changeMethods, toItem]);
 
   if (!items) return null
 

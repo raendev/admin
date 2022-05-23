@@ -64,7 +64,9 @@
 }
 
 .content > * {
-  display: block;
+  align-items: center;
+  gap: var(--spacing-xs);
+  display: flex;
   padding-left: var(--spacing-l);
 }
 

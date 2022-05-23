@@ -13,6 +13,8 @@ export const Section: React.FC<React.PropsWithChildren<{
     setOpen(true)
   }, [methods])
 
+  if (!methods.length) return null
+
   return (
     <Collapsible
       open={open}
