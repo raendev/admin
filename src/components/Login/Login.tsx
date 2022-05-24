@@ -1,6 +1,7 @@
-import * as React from "react"
+import React from "react"
 import useNear from "../../hooks/useNear"
 import { Dropdown } from ".."
+import css from './login.module.css'
 
 export function Login() {
   const { wallet, signIn, signOut } = useNear()
@@ -9,12 +10,12 @@ export function Login() {
 
   const currentUser = wallet.getAccountId()
 
-  if (currentUser) return (
-    <Dropdown
-      trigger={currentUser}
-      items={[{ children: "Sign Out", onSelect: signOut }]}
-    />
-  )
+  const el = currentUser
+    ? <Dropdown
+        trigger={currentUser}
+        items={[{ children: "Sign Out", onSelect: signOut }]}
+      />
+    : <button onClick={signIn}>Sign In</button>
 
-  return <button onClick={signIn}>Sign In</button>
+  return <div className={css.login}>{el}</div>
 }

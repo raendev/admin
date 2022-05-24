@@ -9,7 +9,9 @@ export const Sidebar: React.FC<React.PropsWithChildren<unknown>> = () => {
     <div className={`bokeh ${css.sidebar}`}>
       {!isMobile && (
         <div className={css.nav}>
-          <div className={css.logo}><Logo /></div>
+          <div className={css.logo}>
+            <Logo padding="var(--spacing-xs) 0 var(--spacing-m)" />
+          </div>
           <Login />
         </div>
       )}
