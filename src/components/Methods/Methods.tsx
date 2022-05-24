@@ -33,7 +33,7 @@ export const Methods = () => {
     const Tip = restrictedTo && (
       <Tooltip>
         <Trigger asChild>
-          <span>
+          <span className={css.crown}>
             <span className="visuallyHidden">Restricted</span>
             <Crown />
           </span>

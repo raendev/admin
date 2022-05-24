@@ -3,6 +3,11 @@
   gap: var(--spacing-xs);
 }
 
+.crown,
+.restrictedTo > *:last-child {
+  flex: 0 0 var(--spacing-m);
+}
+
 .restrictedTo,
 .forbidden,
 .forbidden:focus,

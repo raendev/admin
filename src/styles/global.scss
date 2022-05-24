@@ -386,9 +386,10 @@ input[type=checkbox] {
 
 .tooltip {
   background: var(--bg);
-  padding: var(--spacing-s) var(--spacing-l);
   border-radius: var(--br-base);
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5);
+  padding: var(--spacing-s) var(--spacing-l);
+  max-width: 240px;
 }
 
 .tooltip polygon {
