@@ -1,11 +1,26 @@
 .section header {
+  --animationTiming: 150ms;
   display: flex;
   justify-content: space-between;
-  --animationTiming: 300ms;
+  margin-top: var(--spacing-l);
 }
 
 .section h3 {
+  color: var(--gray-5);
+  font-size: 0.95em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.chevron,
+.chevron:hover,
+.chevron:focus {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  top: 0;
 }
 
 .chevron:after {
@@ -15,7 +30,7 @@
   content: ' ';
   display: block;
   width: var(--spacing-m);
-  height: var(--spacing-m);
+  padding-bottom: calc(7 / 12 * 100%);
   transition: transform var(--animationTiming);
   transform: rotate(0deg);
 }
@@ -26,7 +41,6 @@
 
 .content {
   border-left: 2px solid var(--black);
-  margin: var(--spacing-l) 0;
   overflow: hidden;
   transition-delay: 300ms;
   transition-property: visibility;
@@ -36,41 +50,48 @@
 @keyframes slideDown {
   0% {
     height: 0px;
+    margin: 0;
   }
   100% {
     height: var(--radix-collapsible-content-height);
+    margin: var(--spacing-m) 0 var(--spacing-xxl);
   }
 }
 
 @keyframes slideUp {
   0% {
     height: var(--radix-collapsible-content-height);
+    margin: var(--spacing-m) 0 var(--spacing-xxl);
     visibility: visible;
   }
   100% {
     height: 0px;
+    margin: 0;
     visibility: hidden;
   }
 }
 
 .content[data-state="open"] {
   animation: slideDown 300ms ease-out;
+  margin: var(--spacing-m) 0 var(--spacing-xxl);
   visibility: visible;
 }
 
 .content[data-state="closed"] {
-  animation: slideUp 300ms ease-out;
+  animation: slideUp 300ms ease-out forwards;
+  margin: 0;
   visibility: hidden;
 }
 
 .content > * {
   align-items: center;
-  gap: var(--spacing-xs);
+  border: none;
+  border-radius: 0 var(--br-base) var(--br-base) 0;
   display: flex;
-  padding-left: var(--spacing-l);
-}
-
-.content a {
+  gap: var(--spacing-xs);
+  font-weight: var(--fw-regular);
+  line-height: 1.8;
+  padding-left: var(--spacing-m);
   text-decoration: none;
 }
 
@@ -82,5 +103,5 @@
 /* currently-selected method */
 .content div {
   background: var(--black);
-  border-radius: 0 var(--br-small) var(--br-small) 0;
+  font-weight: var(--fw-bold);
 }

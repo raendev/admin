@@ -8,10 +8,10 @@ export const Sidebar: React.FC<React.PropsWithChildren<unknown>> = () => {
   return (
     <div className={`bokeh ${css.sidebar}`}>
       {!isMobile && (
-        <>
+        <div className={css.nav}>
           <div className={css.logo}><Logo /></div>
           <Login />
-        </>
+        </div>
       )}
       {isMobile && <div className={css.arrow} />}
       <Methods />

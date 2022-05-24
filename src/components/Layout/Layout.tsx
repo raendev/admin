@@ -9,7 +9,7 @@ export const Layout: React.FC<React.PropsWithChildren<unknown>> = ({ children })
   return (
     <div className={css.layout}>
       <Sidebar />
-      <div>
+      <div className={css.mainContent}>
         <div className={css.topBar}>
           {isMobile && (
             <div className={css.tippityTop}>
