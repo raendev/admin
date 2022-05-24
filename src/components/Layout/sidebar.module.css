@@ -1,9 +1,5 @@
 .sidebar {
   font-size: 0.9em;
-  height: -webkit-fill-available;
-  height: 100vh;
-  overflow-x: hidden;
-  overflow-y: scroll;
   padding: var(--spacing-m);
   position: relative;
 }
