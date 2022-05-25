@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
 import toSnake from "to-snake-case";
 import useNear from '../../hooks/useNear';
 import { Section } from './Section';
@@ -8,20 +7,18 @@ import { Crown } from './Crown'
 import css from './methods.module.css';
 
 type Items = {
-  'Change Methods': JSX.Element[]
-  'View Methods': JSX.Element[]
+  'Change Methods': (readonly [string, JSX.Element])[]
+  'View Methods': (readonly [string, JSX.Element])[]
 }
 
 export const Methods = () => {
   const {
     canCall,
     changeMethods,
-    contract,
     getDefinition,
     viewMethods,
     wallet,
   } = useNear()
-  const { method: currentMethod } = useParams<{ contract: string, method: string }>()
   const [items, setItems] = useState<Items>()
   const user = wallet?.getAccountId() as string
 
@@ -53,21 +50,14 @@ export const Methods = () => {
       </Tooltip>
     )
 
-    if (currentMethod === camel) {
-      return <div key={camel}>{snake}{Tip}</div>
-    }
-
-    return (
-      <Link
-        className={allowed ? undefined : css.forbidden}
-        key={camel}
-        to={`/${contract}/${camel}`}
-      >
+    return [
+      camel,
+      <span className={allowed ? undefined : css.forbidden}>
         {snake}
         {Tip}
-      </Link>
-    )
-  }, [canCall, contract, currentMethod, getDefinition, user])
+      </span>
+    ] as const
+  }, [canCall, getDefinition, user])
 
   useEffect(() => {
     (async () => {
@@ -83,7 +73,11 @@ export const Methods = () => {
   return (
     <>
       {Object.entries(items).map(([heading, methods]) => (
-        <Section key={heading} heading={heading} methods={methods} />
+        <Section
+          key={heading}
+          heading={heading}
+          methods={methods}
+        />
       ))}
     </>
   )

@@ -5,10 +5,6 @@
 
 .mobile {
   border-radius: var(--br-base);
-  position: absolute;
-  width: 90%;
-  left: 2.5%;
-  z-index: 2;
   box-shadow: var(--box-shadow-deep);
 }
 

@@ -24,6 +24,7 @@ export const Layout: React.FC<React.PropsWithChildren<unknown>> = ({ children })
           {isMobile && (
             <div className={css.mobileTop}>
               <button
+                aria-controls="mobileSidebarWrap"
                 className={`${css.menu} ${open ? css.open : css.closed}`}
                 onClick={() => setOpen(!open)}
               >
@@ -35,7 +36,15 @@ export const Layout: React.FC<React.PropsWithChildren<unknown>> = ({ children })
           )}
           <ContractForm />
         </div>
-        {open && <Sidebar />}
+        <div
+          className={css.mobileSidebarWrap}
+          data-state={open ? 'open' : 'closed'}
+          aria-hidden={!open}
+          id="mobileSidebarWrap"
+          aria-live="polite"
+        >
+          <Sidebar />
+        </div>
         <div className="container" style={{ marginTop: 'var(--spacing-l)' }}>
           {children}
         </div>
