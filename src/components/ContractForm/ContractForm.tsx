@@ -58,7 +58,7 @@ export const ContractForm: React.FC<{ autoFocus?: boolean }> = ({
           ref={inputRef}
           onChange={e => setCustom(e.target.value)}
         />
-        <button className={css.button} disabled={!custom}>
+        <button className={css.button} disabled={!custom || custom === contract}>
           &rarr;
         </button>
       </div>
