@@ -8,7 +8,7 @@ export const Dropdown: React.FC<React.PropsWithChildren<{
 }>> = ({ trigger, items }) => {
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger className={css.trigger}>
+      <DropdownMenu.Trigger className={css.trigger} asChild>
         {trigger}
       </DropdownMenu.Trigger>
 

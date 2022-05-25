@@ -417,3 +417,11 @@ input[type=checkbox] {
 .tooltip polygon {
   fill: var(--bg);
 }
+
+.ellipsis {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: calc(9 * var(--spacing-m));
+}
