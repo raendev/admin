@@ -28,7 +28,7 @@ export const ContractForm: React.FC<{ autoFocus?: boolean }> = ({
       if (!custom) return
 
       try {
-        navigate(init(custom).contract)
+        navigate(`/${init(custom).contract}`)
       } catch (e: unknown) {
         if (e instanceof Error) {
           setError(e.message)
