@@ -17,7 +17,7 @@ export function Home() {
           <p className={css.lead}>
             Enter a contract name below (i.e. <strong>v2.tenk.testnet</strong>)
           </p>
-          <ContractForm />
+          <ContractForm autoFocus />
         </div>
         <div className={css.wave}>
           <svg width="100%" viewBox="0 0 1440 72" fill="none">

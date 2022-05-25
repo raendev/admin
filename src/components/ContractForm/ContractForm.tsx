@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { init } from "../../near"
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import css from "./form.module.css";
 
-export const ContractForm = () => {
+export const ContractForm: React.FC<{ autoFocus?: boolean }> = ({
+  autoFocus = false,
+}) => {
+  const { contract } = useParams<{ contract: string }>()
   const inputRef = useRef<HTMLInputElement>(null)
   const [custom, setCustomRaw] = useState<string>()
   const [error, setError] = useState<string>()
@@ -15,8 +18,8 @@ export const ContractForm = () => {
   }, [setCustomRaw, setError])
 
   useEffect(() => {
-    inputRef.current?.focus()
-  }, [inputRef])
+    if (autoFocus) inputRef.current?.focus()
+  }, [autoFocus, inputRef])
 
   return (
     <form className={css.form} onSubmit={e => {
@@ -49,6 +52,7 @@ export const ContractForm = () => {
         </label>
         <input
           className={css.input}
+          defaultValue={contract}
           id="customContract"
           value={custom}
           ref={inputRef}

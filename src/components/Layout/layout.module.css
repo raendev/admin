@@ -12,10 +12,17 @@
 
 .topBar {
   align-items: center;
-  background-color: var(--dark);
+  background-color: var(--white);
   display: flex;
   justify-content: center;
   padding: var(--spacing-m);
+  margin-bottom: var(--spacing-l);
+}
+
+@media (prefers-color-scheme: dark) {
+  .topBar {
+    background-color: var(--gray-2);
+  }
 }
 
 .tippityTop {
