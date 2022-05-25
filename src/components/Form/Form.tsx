@@ -140,15 +140,13 @@ export function Form() {
 
   return (
     <>
-      <div className="columns">
-        <label>
-          <input
-            type="checkbox"
-            onChange={e => setLiveValidate(e.target.checked)}
-          />
-          Live Validation
-        </label>
-      </div>
+      {method && (
+        <h1
+          dangerouslySetInnerHTML={{
+            __html: snake(method).split('_').join('_<wbr>')
+          }}
+        />
+      )}
       {schema && (
         <div className="columns" style={{ alignItems: 'flex-start' }}>
           <FormComponent
@@ -159,6 +157,13 @@ export function Form() {
             onChange={setFormData}
             onSubmit={onSubmit}
           />
+          <label>
+            <input
+              type="checkbox"
+              onChange={e => setLiveValidate(e.target.checked)}
+            />
+            Live Validation
+          </label>
           <div>
             {loading
               ? <div className={css.loader} />

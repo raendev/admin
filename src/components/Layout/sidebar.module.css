@@ -1,7 +1,19 @@
 .sidebar {
-  font-size: 0.9em;
   padding: var(--spacing-m);
   position: relative;
+}
+
+.mobile {
+  border-radius: var(--br-base);
+  position: absolute;
+  width: 90%;
+  left: 2.5%;
+  z-index: 2;
+  box-shadow: var(--box-shadow-deep);
+}
+
+.sidebar:not(.mobile) {
+  font-size: 0.9em;
 }
 
 .nav {
@@ -19,5 +31,5 @@
   border-radius: var(--br-small);
   border-bottom-color: var(--dark);
   position: absolute;
-  top: calc(-1 * var(--width));
+  top: calc(-2 * var(--width) + 1px);
 }

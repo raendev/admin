@@ -5,6 +5,11 @@
   margin-top: var(--spacing-l);
 }
 
+/* remove top margin on mobile menu */
+.section:first-child header {
+  margin-top: 0;
+}
+
 .section h3 {
   color: var(--gray-5);
   font-size: 0.95em;

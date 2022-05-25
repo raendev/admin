@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const MOBILE_BREAKPOINT = 600
+const MOBILE_BREAKPOINT = 800
 
 interface Dimensions {
   width: number

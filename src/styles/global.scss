@@ -26,7 +26,7 @@ $black: #000;
   --fw-bold: 700;
 
   /* Line Heights */
-  --lh-headings: 1.1;
+  --lh-headings: 1;
   --lh-copy: 1.5;
 
   /* Spacing Scale */
@@ -399,7 +399,7 @@ input[type=checkbox] {
 .errorHint {
   background: var(--bg-red);
   padding: var(--spacing-s);
-  border-radius: var(--br-small);
+  border-radius: var(--br-base);
 }
 
 .tooltip {

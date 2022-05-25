@@ -1,16 +1,13 @@
 .form {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
   position: relative;
 }
 
 .border {
+  display: flex;
   align-items: center;
   border: 2px solid var(--gray-9);
   border-radius: var(--br-base);
-  display: flex;
+  max-width: 100%;
 }
 
 .border:focus-within {
@@ -20,8 +17,10 @@
 .input {
   border: none;
   border-radius: 0;
+  flex: 1;
   margin: 0;
   padding: var(--spacing-s) var(--spacing-xs);
+  width: 100%; /* somehow fixes it being too wide! */
 }
 
 .label {
@@ -63,7 +62,8 @@
 .error {
   position: absolute;
   width: var(--max-width);
-  max-width: 100%;
+  max-width: calc(100% - 2 * var(--spacing-m));
+  margin: 0 auto;
   top: 100%;
   z-index: 1;
 }
