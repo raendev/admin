@@ -318,6 +318,11 @@ button[disabled],
   transform: none;
 }
 
+input:hover:not(:focus),
+select:hover:not(:focus) {
+  background: var(--gray-1);
+}
+
 input:hover,
 input:focus,
 input:active,
