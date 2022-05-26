@@ -22,7 +22,7 @@ const stub = {
   methods: {},
   getMethod: () => undefined,
   getDefinition: () => undefined,
-  canCall: () => false,
+  canCall: () => Promise.resolve([true, undefined] as const),
 } as const
 
 type NearInterface = ContractInterface & SchemaInterface

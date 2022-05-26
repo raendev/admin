@@ -25,7 +25,9 @@ export const Methods = () => {
   const toItem = useMemo(() => async (camel: string) => {
     const snake = toSnake(camel)
     const restrictedTo = getDefinition(camel)?.allow
-    const allowed = await canCall(camel, user)
+      ?.map(x => x.replace(/^::/, ''))
+      ?.join(', ')
+    const [allowed, whyForbidden] = await canCall(camel, user)
 
     const Tip = restrictedTo && (
       <Tooltip>
@@ -41,9 +43,7 @@ export const Methods = () => {
             <Crown fill="var(--gray-6)" />
           </div>
           <div>
-            {restrictedTo
-              .map(x => x.replace(/^::/, ''))
-              .join(', ')}
+            {restrictedTo}
           </div>
           <Arrow />
         </Content>
@@ -52,7 +52,12 @@ export const Methods = () => {
 
     return [
       camel,
-      <span className={allowed ? undefined : css.forbidden}>
+      <span
+        className={allowed ? undefined : css.forbidden}
+        title={allowed ? undefined :
+          `Forbidden: ${whyForbidden}`
+        }
+      >
         {snake}
         {Tip}
       </span>

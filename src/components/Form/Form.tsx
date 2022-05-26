@@ -71,7 +71,7 @@ function allFilled(formData?: FormData, required?: string[]) {
 }
 
 export function Form() {
-  const { wallet, getMethod, getDefinition } = useNear()
+  const { canCall, wallet, getMethod, getDefinition } = useNear()
   const { contract, method } = useParams<{ contract: string, method: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const formData = decodeData(searchParams)
@@ -79,7 +79,17 @@ export function Form() {
   const [result, setResult] = useState<any>()
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<any>()
+  const [whyForbidden, setWhyForbidden] = useState<string>()
   const schema = method && getMethod(method)?.schema
+
+  useEffect(() => {
+    if (!method) return
+
+    (async () => {
+      const [, why] = await canCall(method, wallet?.getAccountId())
+      if (why) setWhyForbidden(why)
+    })()
+  }, [canCall, method, wallet]);
 
   const setFormData = useMemo(() => ({ formData: newFormData }: WrappedFormData) => {
     setSearchParams(
@@ -138,23 +148,25 @@ export function Form() {
     // don't want to auto-submit while filling in form, but do when changing methods
   }, [wallet, method]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  if (!method) return null
+
   return (
     <>
-      {method && (
-        <h1>
-          {/* insert <wbr> (word break opportunity) tags after underscores */}
-          {snake(method).split('_').map((word, i) => (
-            <>
-              {i !== 0 && <>_<wbr /></>}
-              {word}
-            </>
-          ))}
-        </h1>
-      )}
+      <h1>
+        {/* insert <wbr> (word break opportunity) tags after underscores */}
+        {snake(method).split('_').map((word, i) => (
+          <>
+            {i !== 0 && <>_<wbr /></>}
+            {word}
+          </>
+        ))}
+      </h1>
+      {whyForbidden && <p className="errorHint">Forbidden: {whyForbidden}</p>}
       {schema && (
-        <div className="columns" style={{ alignItems: 'flex-start' }}>
+        <>
           <FormComponent
             key={method /* re-initialize form when method changes */}
+            disabled={!!whyForbidden}
             liveValidate={liveValidate}
             schema={schema}
             formData={formData}
@@ -174,7 +186,7 @@ export function Form() {
               : <Display result={result} error={error} />
             }
           </div>
-        </div>
+        </>
       )}
     </>
   );
