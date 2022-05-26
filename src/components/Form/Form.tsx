@@ -141,11 +141,15 @@ export function Form() {
   return (
     <>
       {method && (
-        <h1
-          dangerouslySetInnerHTML={{
-            __html: snake(method).split('_').join('_<wbr>')
-          }}
-        />
+        <h1>
+          {/* insert <wbr> (word break opportunity) tags after underscores */}
+          {snake(method).split('_').map((word, i) => (
+            <>
+              {i !== 0 && <>_<wbr /></>}
+              {word}
+            </>
+          ))}
+        </h1>
       )}
       {schema && (
         <div className="columns" style={{ alignItems: 'flex-start' }}>
