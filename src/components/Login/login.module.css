@@ -1,0 +1,10 @@
+.login {
+  display: flex;
+  justify-content: space-around;
+}
+
+.login button {
+  align-items: center;
+  display: flex;
+  gap: var(--spacing-m);
+}

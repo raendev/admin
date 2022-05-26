@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { withTheme } from "@rjsf/core";
+import FormComponent from "@rjsf/core";
 import snake from "to-snake-case";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom"
+import { useParams, useSearchParams } from "react-router-dom"
 import useNear from "../../hooks/useNear"
-import { Selector } from ".."
 
 import css from "./form.module.css"
 
@@ -17,8 +16,6 @@ type FormData = {
 type WrappedFormData = {
   formData?: FormData
 }
-
-const FormComponent = withTheme({})
 
 let mainTitle: string
 
@@ -74,7 +71,7 @@ function allFilled(formData?: FormData, required?: string[]) {
 }
 
 export function Form() {
-  const { wallet, getMethod, getDefinition } = useNear()
+  const { canCall, wallet, getMethod, getDefinition } = useNear()
   const { contract, method } = useParams<{ contract: string, method: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const formData = decodeData(searchParams)
@@ -82,8 +79,17 @@ export function Form() {
   const [result, setResult] = useState<any>()
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<any>()
+  const [whyForbidden, setWhyForbidden] = useState<string>()
   const schema = method && getMethod(method)?.schema
-  const navigateRaw = useNavigate()
+
+  useEffect(() => {
+    if (!method) return
+
+    (async () => {
+      const [, why] = await canCall(method, wallet?.getAccountId())
+      if (why) setWhyForbidden(why)
+    })()
+  }, [canCall, method, wallet]);
 
   const setFormData = useMemo(() => ({ formData: newFormData }: WrappedFormData) => {
     setSearchParams(
@@ -92,11 +98,11 @@ export function Form() {
     )
   }, [setSearchParams])
 
-  const navigate = useMemo(() => (path: string) => {
+  // reset result and error when URL changes
+  useEffect(() => {
     setResult(undefined)
     setError(undefined)
-    navigateRaw(path)
-  }, [navigateRaw])
+  }, [contract, method]);
 
 
   const onSubmit = useMemo(() => async ({ formData }: WrappedFormData) => {
@@ -142,42 +148,45 @@ export function Form() {
     // don't want to auto-submit while filling in form, but do when changing methods
   }, [wallet, method]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  if (!method) return null
+
   return (
     <>
-      <div className="columns">
-        <Selector
-          value={method && snake(method)}
-          onSelected={newMethod => {
-            if (method !== newMethod) {
-              navigate(`/${contract}/${newMethod}`)
-            }
-          }}
-        />
-        <label>
-          <input
-            type="checkbox"
-            onChange={e => setLiveValidate(e.target.checked)}
-          />
-          Live Validation
-        </label>
-      </div>
+      <h1>
+        {/* insert <wbr> (word break opportunity) tags after underscores */}
+        {snake(method).split('_').map((word, i) => (
+          <>
+            {i !== 0 && <>_<wbr /></>}
+            {word}
+          </>
+        ))}
+      </h1>
+      {whyForbidden && <p className="errorHint">Forbidden: {whyForbidden}</p>}
       {schema && (
-        <div className="columns" style={{ alignItems: 'flex-start' }}>
+        <>
           <FormComponent
             key={method /* re-initialize form when method changes */}
+            disabled={!!whyForbidden}
             liveValidate={liveValidate}
             schema={schema}
             formData={formData}
             onChange={setFormData}
             onSubmit={onSubmit}
           />
+          <label>
+            <input
+              type="checkbox"
+              onChange={e => setLiveValidate(e.target.checked)}
+            />
+            Live Validation
+          </label>
           <div>
             {loading
               ? <div className={css.loader} />
               : <Display result={result} error={error} />
             }
           </div>
-        </div>
+        </>
       )}
     </>
   );

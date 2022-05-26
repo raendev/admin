@@ -1,0 +1,31 @@
+.sidebar {
+  padding: var(--spacing-m);
+  position: relative;
+}
+
+.mobile {
+  border-radius: var(--br-base);
+  box-shadow: var(--box-shadow-deep);
+}
+
+.sidebar:not(.mobile) {
+  font-size: 0.9em;
+}
+
+.nav {
+  width: 100%;
+  z-index: 2;
+}
+
+.logo {
+  text-align: center;
+}
+
+.arrow {
+  --width: 12px;
+  border: var(--width) solid transparent;
+  border-radius: var(--br-small);
+  border-bottom-color: var(--dark);
+  position: absolute;
+  top: calc(-2 * var(--width) + 1px);
+}

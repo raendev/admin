@@ -75,6 +75,7 @@ function hasAllowProperty(obj: {}): obj is { allow: string[] } {
 type MethodDefinition = {
   additionalProperties?: boolean
   contractMethod?: "view" | "change"
+  allow?: string[]
   properties?: {
     args: {
       additionalProperties: boolean
@@ -123,9 +124,9 @@ export interface SchemaInterface {
    * 
    * @param method string Method of contract to check permissions for
    * @param account string Account name that may or may not be allowed to call `method` on `contract`
-   * @returns boolean true of `account` can call `method` on `contract`, false if not
+   * @returns [boolean, string] boolean is true of `account` can call `method` on `contract`, false if not. string contains reason why user is forbidden.
    */
-  canCall: (method: string, account: string) => Promise<boolean>
+  canCall: (method: string, account: string) => Promise<readonly [boolean, string | undefined]>
 }
 
 type ContractName = string
@@ -183,18 +184,23 @@ export async function getSchema(contract: string): Promise<SchemaInterface> {
     return def as MethodDefinition
   }
 
-  async function canCall(method: string, account: string): Promise<boolean> {
-    const def = schema.definitions?.[method]
+  async function canCall(method: string, account: string): Promise<readonly [false, string]>;
+  async function canCall(method: string, account: string): Promise<readonly [true, undefined]>;
+  async function canCall(method: string, account: string): Promise<readonly [boolean, string | undefined]> {
+    const def = getDefinition(method)
 
-    // if no definition found for `method` in `schema`, then it is never callable
-    if (!def) return false
+    if (!def) return [false, `No method "${method}" exists for contract "${contract}"`]
+
+
+    if (def.contractMethod === 'change' && !account) return [false, 'Must sign in']
+
 
     const hasField = hasAllowProperty(def)
 
     // if no `allows` field, then anyone can call this method; return true
-    if (!hasField) return true
+    if (!hasField) return [true, undefined]
 
-    return (await Promise.all(def.allow.map(async accountOrMethod => {
+    const inRestrictedGroup = (await Promise.all(def.allow.map(async accountOrMethod => {
       // if `allow` value doesn't start with `::`, then it's a literal account name
       if (accountOrMethod.slice(0, 2) !== '::') {
         return accountOrMethod === account
@@ -211,6 +217,19 @@ export async function getSchema(contract: string): Promise<SchemaInterface> {
       const accounts = Array.from(await accountObj.viewFunction(contract, method))
       return accounts.includes(account)
     }))).reduce((acc, inGroup) => acc || inGroup, false)
+
+    const restrictedTo = def.allow.map((group, i) => {
+      const suffix = def.allow.length - 1 === i
+        ? ''
+        : def.allow.length - 2 === i
+        ? ' & '
+        : ', '
+      return group.replace(/^::/, '') + suffix
+    }).join('')
+
+    return inRestrictedGroup
+      ? [true, undefined]
+      : [false, `Only callable by ${restrictedTo}`]
   }
 
   return {

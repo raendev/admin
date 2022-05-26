@@ -1,0 +1,113 @@
+.section header {
+  --animationTiming: 150ms;
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-l);
+}
+
+/* remove top margin on mobile menu */
+.section:first-child header {
+  margin-top: 0;
+}
+
+.section h3 {
+  color: var(--gray-5);
+  font-size: 0.95em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.chevron,
+.chevron:hover,
+.chevron:focus {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  top: 0;
+}
+
+.chevron:after {
+  background-image: url('./chevron.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  content: ' ';
+  display: block;
+  width: var(--spacing-m);
+  padding-bottom: calc(7 / 12 * 100%);
+  transition: transform var(--animationTiming);
+  transform: rotate(0deg);
+}
+
+.closed .chevron:after {
+  transform: rotate(-180deg);
+}
+
+.content {
+  border-left: 2px solid var(--black);
+  overflow: hidden;
+  transition-delay: 300ms;
+  transition-property: visibility;
+  transition-duration: 0ms;
+}
+
+@keyframes slideDown {
+  0% {
+    height: 0px;
+    margin: 0;
+  }
+  100% {
+    height: var(--radix-collapsible-content-height);
+    margin: var(--spacing-m) 0 var(--spacing-xxl);
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    height: var(--radix-collapsible-content-height);
+    margin: var(--spacing-m) 0 var(--spacing-xxl);
+    visibility: visible;
+  }
+  100% {
+    height: 0px;
+    margin: 0;
+    visibility: hidden;
+  }
+}
+
+.content[data-state="open"] {
+  animation: slideDown 300ms ease-out;
+  margin: var(--spacing-m) 0 var(--spacing-xxl);
+  visibility: visible;
+}
+
+.content[data-state="closed"] {
+  animation: slideUp 300ms ease-out forwards;
+  margin: 0;
+  visibility: hidden;
+}
+
+.content > * {
+  align-items: center;
+  border: none;
+  border-radius: 0 var(--br-base) var(--br-base) 0;
+  display: flex;
+  gap: var(--spacing-xs);
+  font-weight: var(--fw-regular);
+  line-height: 1.8;
+  padding-left: var(--spacing-m);
+  text-decoration: none;
+}
+
+.content a:hover,
+.content a:focus {
+  text-decoration: none;
+}
+
+/* currently-selected method */
+.content div {
+  background: var(--black);
+  font-weight: var(--fw-bold);
+}
+

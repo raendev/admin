@@ -1,0 +1,43 @@
+.hero {
+  text-align: center;
+}
+
+.logo {
+  text-align: left;
+}
+
+.wave svg {
+  --color: var(--light);
+  display: block;
+  margin-top: var(--spacing-xxl);
+  transform: translateY(2px);
+}
+
+@media (prefers-color-scheme: dark) {
+  .wave svg {
+    --color: var(--black);
+  }
+}
+
+.lead {
+  color: #959BB0;
+  font-size: 0.8em;
+}
+
+.lead strong {
+  color: var(--fg);
+}
+
+.body {
+  margin-top: var(--spacing-l);
+}
+
+.body h2:first-child:after {
+  content: ' 👇🏿';
+}
+
+@media(prefers-color-scheme: dark) {
+  .body h2:first-child:after {
+    content: ' 👇🏻';
+  }
+}
