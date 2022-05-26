@@ -82,8 +82,9 @@
   animation: fadeOut 200ms ease-out forwards;
   opacity: 0;
   left: -500vh;
+  visibility: hidden;
   transition-delay: 200ms;
-  transition-property: left;
+  transition-property: visibility left;
   transition-duration: 0ms;
 }
 
