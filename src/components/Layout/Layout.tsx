@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { ContractForm, Logo, Login } from '..'
 import { Sidebar } from './Sidebar'
 import css from './layout.module.css'
@@ -30,7 +30,9 @@ export const Layout: React.FC<React.PropsWithChildren<unknown>> = ({ children })
               >
                 <span className="visuallyHidden">{open ? 'close' : 'open'}</span>
               </button>
-              <Logo padding="0" />
+              <Link to="/" style={{ border: 'none', background: 'transparent' }}>
+                <Logo padding="0" />
+              </Link>
               <Login />
             </div>
           )}
