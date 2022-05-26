@@ -4,6 +4,7 @@ import { Logo } from ".."
 import { ContractForm } from ".."
 import { Link } from "react-router-dom";
 import css from "./home.module.css"
+import Markdown from "react-markdown"
 
 export function Home() {
   return (
@@ -56,9 +57,10 @@ export function Home() {
         </p>
         <p>Not ready to deploy a contract? Try one of these examples:</p>
         <ul>
-          {featuredContracts.map(contract => (
+          {featuredContracts.map(([contract, description]) => (
             <li key={contract}>
-              <Link to={contract}>{contract}</Link>
+              <h3><Link to={contract}>{contract}</Link></h3>
+              <Markdown>{description}</Markdown>
             </li>
           ))}
         </ul>

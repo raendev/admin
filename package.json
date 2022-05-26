@@ -13,6 +13,7 @@
     "near-api-js": "github:AhaLabs/near-api-js#develop",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
+    "react-markdown": "^8.0.3",
     "react-router-dom": "6",
     "react-scripts": "^5.0.1",
     "to-snake-case": "^1.0.0",

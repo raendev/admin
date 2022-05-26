@@ -1,3 +1,3 @@
 [
-  "v2.tenk.testnet"
+  ["v2.tenk.testnet", "A full-featured (read: complex) NFT contract used as the starting point for new [TenK](https://tenk.dev) contracts."]
 ]
