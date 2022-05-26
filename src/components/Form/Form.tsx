@@ -83,12 +83,14 @@ export function Form() {
   const schema = method && getMethod(method)?.schema
 
   useEffect(() => {
-    if (!method) return
-
-    (async () => {
-      const [, why] = await canCall(method, wallet?.getAccountId())
-      if (why) setWhyForbidden(why)
-    })()
+    if (!method) {
+      setWhyForbidden(undefined)
+    } else {
+      (async () => {
+        const [, why] = await canCall(method, wallet?.getAccountId())
+        setWhyForbidden(why)
+      })()
+    }
   }, [canCall, method, wallet]);
 
   const setFormData = useMemo(() => ({ formData: newFormData }: WrappedFormData) => {
