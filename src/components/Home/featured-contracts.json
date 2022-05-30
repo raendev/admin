@@ -1,6 +1,6 @@
 [
   ["simple.statusmessage.raendev.testnet", "A simple status message contract. Each account can store one `message` string."],
   ["intermediate.statusmessage.raendev.testnet", "Intermediate example of a status message with a body and title."],
-  ["advanced.statusmessage.raendev.testnet", "Advanced example of a status mesage with a body and title with Message type exposed."],
+  ["advanced.statusmessage.raendev.testnet", "Advanced example of a status message. `body` and `title` are encapsulated in a `Message` type, which is also exposed."],
   ["v2.tenk.testnet", "A full-featured (read: complex) NFT contract used as the starting point for new [TenK](https://tenk.dev) contracts."]
 ]
