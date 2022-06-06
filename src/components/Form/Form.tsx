@@ -3,6 +3,7 @@ import FormComponent from "@rjsf/core";
 import snake from "to-snake-case";
 import { useParams, useSearchParams } from "react-router-dom"
 import useNear from "../../hooks/useNear"
+import { WithWBRs } from '..'
 
 import css from "./form.module.css"
 
@@ -155,13 +156,7 @@ export function Form() {
   return (
     <>
       <h1>
-        {/* insert <wbr> (word break opportunity) tags after underscores */}
-        {snake(method).split('_').map((word, i) => (
-          <>
-            {i !== 0 && <>_<wbr /></>}
-            {word}
-          </>
-        ))}
+        <WithWBRs word={snake(method)} />
       </h1>
       {whyForbidden && <p className="errorHint">Forbidden: {whyForbidden}</p>}
       {schema && (

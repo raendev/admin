@@ -1,7 +1,7 @@
 import React from "react"
 import featuredContracts from "./featured-contracts.json"
 import { Logo } from ".."
-import { ContractForm } from ".."
+import { ContractForm, WithWBRs } from ".."
 import { Link } from "react-router-dom";
 import css from "./home.module.css"
 import Markdown from "react-markdown"
@@ -59,7 +59,11 @@ export function Home() {
         <ul>
           {featuredContracts.map(([contract, description]) => (
             <li key={contract}>
-              <h3><Link to={contract}>{contract}</Link></h3>
+              <h3>
+                <Link to={contract}>
+                  <WithWBRs word={contract} breakOn="." />
+                </Link>
+              </h3>
               <Markdown>{description}</Markdown>
             </li>
           ))}
