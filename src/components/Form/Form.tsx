@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { FinalExecutionStatus, FinalExecutionStatusBasic } from 'near-api-js/lib/providers';
 import FormComponent from "@rjsf/core";
 import snake from "to-snake-case";
 import { useParams, useSearchParams } from "react-router-dom"
@@ -18,12 +19,20 @@ type WrappedFormData = {
   formData?: FormData
 }
 
+function isBasic(status: FinalExecutionStatusBasic | FinalExecutionStatus): status is FinalExecutionStatusBasic {
+  return status === 'NotStarted' ||
+    status === 'Started' ||
+    status === 'Failure'
+}
+
 let mainTitle: string
 
 const Display: React.FC<React.PropsWithChildren<{
   result?: string
   error?: string
-}>> = ({ result, error }) => {
+  tx?: string
+}>> = ({ result, error, tx }) => {
+  const { config } = useNear()
   if (!result && !error) return null
 
   return (
@@ -36,6 +45,21 @@ const Display: React.FC<React.PropsWithChildren<{
           {result ?? error}
         </code>
       </pre>
+      {tx && (
+        <p>
+          View transaction details on{' '}
+          <a
+            rel="noreferrer"
+            href={`https://explorer.${config?.networkId}.near.org/transactions/${tx}`}
+            target="_blank"
+          >NEAR Explorer</a> or{' '}
+          <a
+            rel="noreferrer"
+            href={`https://${config?.networkId === 'testnet' ? 'testnet.' : ''}nearblocks.io/txns/${tx}`}
+            target="_blank"
+          >nearblocks.io</a> (be patient, it can take minutes to show up).
+        </p>
+      )}
     </>
   )
 }
@@ -77,7 +101,8 @@ export function Form() {
   const [searchParams, setSearchParams] = useSearchParams()
   const formData = decodeData(searchParams)
   const [liveValidate, setLiveValidate] = useState<boolean>(false)
-  const [result, setResult] = useState<any>()
+  const [result, setResult] = useState<string>()
+  const [tx, setTx] = useState<string>()
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<any>()
   const [whyForbidden, setWhyForbidden] = useState<string>()
@@ -105,23 +130,43 @@ export function Form() {
   useEffect(() => {
     setResult(undefined)
     setError(undefined)
+    setTx(undefined)
   }, [contract, method]);
-
 
   const onSubmit = useMemo(() => async ({ formData }: WrappedFormData) => {
     setLoading(true)
     setError(undefined)
+    setTx(undefined)
     if (!contract || !method) return
     try {
-      const res = getDefinition(method)?.contractMethod === 'change'
-        ? await wallet?.account().functionCall({
+      if (getDefinition(method)?.contractMethod === 'view') {
+        const res = await wallet?.account().viewFunction(
+          contract,
+          snake(method),
+          formData?.args
+        )
+        setResult(JSON.stringify(res, null, 2));
+      } else {
+        const res = await wallet?.account().functionCall({
           contractId: contract,
           methodName: snake(method),
           args: formData?.args ?? {},
           ...formData?.options ?? {}
         })
-        : await wallet?.account().viewFunction(contract, snake(method), formData?.args)
-      setResult(JSON.stringify(res, null, 2));
+
+        setTx(res?.transaction_outcome?.id)
+
+        const status = res?.status
+        if (!status) setResult(undefined)
+        else if (isBasic(status)) setResult(status)
+        else if (status.SuccessValue) setResult(Buffer.from(status.SuccessValue, 'base64').toString())
+        else if (status.Failure) {
+          setResult(`${status.Failure.error_type}: ${status.Failure.error_message}`)
+        } else {
+          console.error(new Error('RPC response contained no status!'))
+          setResult(undefined)
+        }
+      }
     } catch (e: unknown) {
       setError(
         e instanceof Error
@@ -180,7 +225,7 @@ export function Form() {
           <div>
             {loading
               ? <div className={css.loader} />
-              : <Display result={result} error={error} />
+              : <Display result={result} error={error} tx={tx} />
             }
           </div>
         </>
