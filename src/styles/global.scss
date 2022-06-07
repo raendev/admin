@@ -242,7 +242,6 @@ legend#root_args__title {
 legend#root_options__title {
   text-transform: capitalize;
   font-size: 1.5em;
-  margin: var(--spacing-m) 0 var(--spacing-s);
 }
 
 button,
@@ -374,6 +373,10 @@ input[type=checkbox] {
 // fill in some missing bootstrap form styles
 .form-group p {
   margin: 0;
+}
+
+fieldset#root > .form-group + .form-group {
+  margin-top: var(--spacing-xl);
 }
 
 .array-item {
