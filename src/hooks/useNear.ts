@@ -1,3 +1,4 @@
+import equal from 'fast-deep-equal'
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import {
@@ -61,13 +62,15 @@ export default function useNear(): NearInterface | typeof stub {
       }
 
       const freshSchema = await getSchema(contract)
-      setCache({
-        ...cache,
-        [contract]: {
-          ...init(contract),
-          ...freshSchema,
-        }
-      })
+      if (!equal(freshSchema, schema)) {
+        setCache({
+          ...cache,
+          [contract]: {
+            ...init(contract),
+            ...freshSchema,
+          }
+        })
+      }
     })()
   }, [cache, contract])
 
