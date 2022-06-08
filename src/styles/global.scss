@@ -6,6 +6,7 @@ $light: #f0f0f0;
 $white: #fff;
 $dark: #3A3D49;
 $black: #000;
+$red: #fc5b5b;
 
 :root {
   /* Typographic Scale */
@@ -67,8 +68,9 @@ $black: #000;
   --gray-8: #{adjust-color($black, $alpha: -0.2)};
   --gray-9: #{adjust-color($black, $alpha: -0.1)};
 
-  --red: #fc5b5b;
-  --bg-red: linear-gradient(to bottom right, rgb(75, 61, 88), rgb(80, 73, 79));
+  --red: #{$red};
+  --bg-red: #{adjust-color($red, $alpha: -0.9)};
+  --bg-red-gradient: linear-gradient(to bottom right, rgb(75, 61, 88), rgb(80, 73, 79));
 }
 
 @mixin dark {
@@ -206,7 +208,7 @@ label {
 }
 
 code {
-  color: var(--fg);
+  color: inherit;
   margin: 0;
   font-size: 85%;
   font-family: var(--monospace);
@@ -400,7 +402,7 @@ fieldset#root > .form-group + .form-group {
 }
 
 .errorHint {
-  background: var(--bg-red);
+  background: var(--bg-red-gradient);
   padding: var(--spacing-s);
   border-radius: var(--br-base);
 }

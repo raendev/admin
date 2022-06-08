@@ -35,7 +35,16 @@ export const Section: React.FC<React.PropsWithChildren<{
           }
 
           return (
-            <Link key={method} to={`/${contract}/${method}`}>
+            <Link
+              key={method}
+              to={`/${contract}/${method}`}
+              onClick={() => {
+                // clear any params set by NEAR Wallet when navigating to new method
+                window.history.pushState(null, '',
+                  window.location.href.replace(window.location.search, '')
+                )
+              }}
+            >
               {element}
             </Link>
           )

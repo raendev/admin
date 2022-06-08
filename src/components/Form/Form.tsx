@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { FinalExecutionStatus, FinalExecutionStatusBasic } from 'near-api-js/lib/providers';
+import { JsonRpcProvider, FinalExecutionStatus, FinalExecutionStatusBasic } from 'near-api-js/lib/providers';
 import FormComponent from "@rjsf/core";
 import snake from "to-snake-case";
 import { useParams, useSearchParams } from "react-router-dom"
@@ -25,6 +25,18 @@ function isBasic(status: FinalExecutionStatusBasic | FinalExecutionStatus): stat
     status === 'Failure'
 }
 
+function hasSuccessValue(obj: {}): obj is { SuccessValue: string } {
+  return 'SuccessValue' in obj
+}
+
+function parseResult(result: string): string {
+  return JSON.stringify(
+    JSON.parse(Buffer.from(result, 'base64').toString()),
+    null,
+    2
+  )
+}
+
 let mainTitle: string
 
 const Display: React.FC<React.PropsWithChildren<{
@@ -37,9 +49,7 @@ const Display: React.FC<React.PropsWithChildren<{
 
   return (
     <>
-      <strong style={{ paddingBottom: 5 }}>
-        {result ? "Result" : "Error"}:
-      </strong>
+      <h1>{result ? "Result" : "Error"}</h1>
       <pre className={error && css.error}>
         <code className={css.result}>
           {result ?? error}
@@ -57,7 +67,7 @@ const Display: React.FC<React.PropsWithChildren<{
             rel="noreferrer"
             href={`https://${config?.networkId === 'testnet' ? 'testnet.' : ''}nearblocks.io/txns/${tx}`}
             target="_blank"
-          >nearblocks.io</a> (be patient, it can take minutes to show up).
+          >nearblocks.io</a>.
         </p>
       )}
     </>
@@ -96,7 +106,7 @@ function allFilled(formData?: FormData, required?: string[]) {
 }
 
 export function Form() {
-  const { canCall, wallet, getMethod, getDefinition } = useNear()
+  const { canCall, config, wallet, getMethod, getDefinition } = useNear()
   const { contract, method } = useParams<{ contract: string, method: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const formData = decodeData(searchParams)
@@ -107,6 +117,28 @@ export function Form() {
   const [error, setError] = useState<any>()
   const [whyForbidden, setWhyForbidden] = useState<string>()
   const schema = method && getMethod(method)?.schema
+  const nonReactParams = window.location.search
+
+  useEffect(() => {
+    if (!wallet || !config || !nonReactParams) return
+
+    const params = new URLSearchParams(nonReactParams)
+    const txHash = params.get('transactionHashes') ?? undefined
+    const errMsg = params.get('errorMessage') ?? undefined
+    const errCode = params.get('errorCode') ?? undefined
+
+    if (errMsg) setError(decodeURIComponent(errMsg))
+    else if (errCode) setError(decodeURIComponent(errCode))
+    else if (txHash) {
+      (async () => {
+        const rpc = new JsonRpcProvider(config.nodeUrl)
+        const tx = await rpc.txStatus(txHash, wallet.getAccountId())
+        if (!hasSuccessValue(tx.status)) return undefined
+        setResult(parseResult(tx.status.SuccessValue))
+        setTx(txHash)
+      })()
+    }
+  }, [config, wallet, nonReactParams])
 
   useEffect(() => {
     if (!method) {
@@ -159,8 +191,9 @@ export function Form() {
         const status = res?.status
         if (!status) setResult(undefined)
         else if (isBasic(status)) setResult(status)
-        else if (status.SuccessValue) setResult(Buffer.from(status.SuccessValue, 'base64').toString())
-        else if (status.Failure) {
+        else if (status.SuccessValue) {
+          setResult(parseResult(status.SuccessValue))
+        } else if (status.Failure) {
           setResult(`${status.Failure.error_type}: ${status.Failure.error_message}`)
         } else {
           console.error(new Error('RPC response contained no status!'))
@@ -222,7 +255,7 @@ export function Form() {
             />
             Live Validation
           </label>
-          <div>
+          <div style={{ marginTop: 'var(--spacing-l)' }}>
             {loading
               ? <div className={css.loader} />
               : <Display result={result} error={error} tx={tx} />
