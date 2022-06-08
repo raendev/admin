@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { JsonRpcProvider, FinalExecutionStatus, FinalExecutionStatusBasic } from 'near-api-js/lib/providers';
 import FormComponent from "@rjsf/core";
 import snake from "to-snake-case";
 import { useParams, useSearchParams } from "react-router-dom"
@@ -18,24 +19,57 @@ type WrappedFormData = {
   formData?: FormData
 }
 
+function isBasic(status: FinalExecutionStatusBasic | FinalExecutionStatus): status is FinalExecutionStatusBasic {
+  return status === 'NotStarted' ||
+    status === 'Started' ||
+    status === 'Failure'
+}
+
+function hasSuccessValue(obj: {}): obj is { SuccessValue: string } {
+  return 'SuccessValue' in obj
+}
+
+function parseResult(result: string): string {
+  return JSON.stringify(
+    JSON.parse(Buffer.from(result, 'base64').toString()),
+    null,
+    2
+  )
+}
+
 let mainTitle: string
 
 const Display: React.FC<React.PropsWithChildren<{
   result?: string
   error?: string
-}>> = ({ result, error }) => {
+  tx?: string
+}>> = ({ result, error, tx }) => {
+  const { config } = useNear()
   if (!result && !error) return null
 
   return (
     <>
-      <strong style={{ paddingBottom: 5 }}>
-        {result ? "Result" : "Error"}:
-      </strong>
+      <h1>{result ? "Result" : "Error"}</h1>
       <pre className={error && css.error}>
         <code className={css.result}>
           {result ?? error}
         </code>
       </pre>
+      {tx && (
+        <p>
+          View transaction details on{' '}
+          <a
+            rel="noreferrer"
+            href={`https://explorer.${config?.networkId}.near.org/transactions/${tx}`}
+            target="_blank"
+          >NEAR Explorer</a> or{' '}
+          <a
+            rel="noreferrer"
+            href={`https://${config?.networkId === 'testnet' ? 'testnet.' : ''}nearblocks.io/txns/${tx}`}
+            target="_blank"
+          >nearblocks.io</a>.
+        </p>
+      )}
     </>
   )
 }
@@ -72,16 +106,39 @@ function allFilled(formData?: FormData, required?: string[]) {
 }
 
 export function Form() {
-  const { canCall, wallet, getMethod, getDefinition } = useNear()
+  const { canCall, config, wallet, getMethod, getDefinition } = useNear()
   const { contract, method } = useParams<{ contract: string, method: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const formData = decodeData(searchParams)
   const [liveValidate, setLiveValidate] = useState<boolean>(false)
-  const [result, setResult] = useState<any>()
+  const [result, setResult] = useState<string>()
+  const [tx, setTx] = useState<string>()
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<any>()
   const [whyForbidden, setWhyForbidden] = useState<string>()
   const schema = method && getMethod(method)?.schema
+  const nonReactParams = window.location.search
+
+  useEffect(() => {
+    if (!wallet || !config || !nonReactParams) return
+
+    const params = new URLSearchParams(nonReactParams)
+    const txHash = params.get('transactionHashes') ?? undefined
+    const errMsg = params.get('errorMessage') ?? undefined
+    const errCode = params.get('errorCode') ?? undefined
+
+    if (errMsg) setError(decodeURIComponent(errMsg))
+    else if (errCode) setError(decodeURIComponent(errCode))
+    else if (txHash) {
+      (async () => {
+        const rpc = new JsonRpcProvider(config.nodeUrl)
+        const tx = await rpc.txStatus(txHash, wallet.getAccountId())
+        if (!hasSuccessValue(tx.status)) return undefined
+        setResult(parseResult(tx.status.SuccessValue))
+        setTx(txHash)
+      })()
+    }
+  }, [config, wallet, nonReactParams])
 
   useEffect(() => {
     if (!method) {
@@ -105,23 +162,44 @@ export function Form() {
   useEffect(() => {
     setResult(undefined)
     setError(undefined)
+    setTx(undefined)
   }, [contract, method]);
-
 
   const onSubmit = useMemo(() => async ({ formData }: WrappedFormData) => {
     setLoading(true)
     setError(undefined)
+    setTx(undefined)
     if (!contract || !method) return
     try {
-      const res = getDefinition(method)?.contractMethod === 'change'
-        ? await wallet?.account().functionCall({
+      if (getDefinition(method)?.contractMethod === 'view') {
+        const res = await wallet?.account().viewFunction(
+          contract,
+          snake(method),
+          formData?.args
+        )
+        setResult(JSON.stringify(res, null, 2));
+      } else {
+        const res = await wallet?.account().functionCall({
           contractId: contract,
           methodName: snake(method),
           args: formData?.args ?? {},
           ...formData?.options ?? {}
         })
-        : await wallet?.account().viewFunction(contract, snake(method), formData?.args)
-      setResult(JSON.stringify(res, null, 2));
+
+        setTx(res?.transaction_outcome?.id)
+
+        const status = res?.status
+        if (!status) setResult(undefined)
+        else if (isBasic(status)) setResult(status)
+        else if (status.SuccessValue) {
+          setResult(parseResult(status.SuccessValue))
+        } else if (status.Failure) {
+          setResult(`${status.Failure.error_type}: ${status.Failure.error_message}`)
+        } else {
+          console.error(new Error('RPC response contained no status!'))
+          setResult(undefined)
+        }
+      }
     } catch (e: unknown) {
       setError(
         e instanceof Error
@@ -177,10 +255,10 @@ export function Form() {
             />
             Live Validation
           </label>
-          <div>
+          <div style={{ marginTop: 'var(--spacing-l)' }}>
             {loading
               ? <div className={css.loader} />
-              : <Display result={result} error={error} />
+              : <Display result={result} error={error} tx={tx} />
             }
           </div>
         </>
