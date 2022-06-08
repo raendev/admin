@@ -9,10 +9,10 @@ export const WithWBRs: React.FC<{
 }> = ({ word, breakOn = '_' }) => (
   <>
     {word.split(breakOn).map((piece, i) => (
-      <>
+      <React.Fragment key={i}>
         {i !== 0 && <>{breakOn}<wbr /></>}
         {piece}
-      </>
+      </React.Fragment>
     ))}
   </>
 )
