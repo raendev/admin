@@ -5,7 +5,7 @@ import { Method } from './Method'
 
 export const Section: React.FC<React.PropsWithChildren<{
   heading: string,
-  methods: (readonly [string, JSX.Element])[]
+  methods: string[]
 }>> = ({ heading, methods }) => {
   const [open, setOpen] = useState(true)
 
@@ -28,8 +28,8 @@ export const Section: React.FC<React.PropsWithChildren<{
         </Trigger>
       </header>
       <Content className={css.content} forceMount>
-        {methods.map(([method, element]) => (
-          <Method key={method} method={method} element={element} />
+        {methods.map(method => (
+          <Method key={method} method={method} />
         ))}
       </Content>
     </Collapsible>

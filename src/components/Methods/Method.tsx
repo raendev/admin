@@ -1,12 +1,48 @@
 import React, { useEffect, useState } from "react";
+import snake from "to-snake-case";
 import { useParams, Link } from "react-router-dom";
+import { Root as Tooltip, Trigger, Content, Arrow } from '@radix-ui/react-tooltip';
 import useNear from '../../hooks/useNear';
 import css from './methods.module.css';
+import { Crown } from './Crown'
 
-export const Method: React.FC<React.PropsWithChildren<{
-  method: string,
-  element: JSX.Element,
-}>> = ({ method, element }) => {
+const Tip: React.FC<{ method: string }> = ({ method }) => {
+  const { getDefinition } = useNear()
+  const [restrictedTo, setRestrictedTo] = useState<string>()
+
+  useEffect(() => {
+    setRestrictedTo(
+      getDefinition(method)?.allow
+        ?.map(x => x.replace(/^::/, ''))
+        ?.join(', ')
+    )
+  }, [getDefinition, method])
+
+  if (!restrictedTo) return null
+
+  return (
+    <Tooltip>
+      <Trigger asChild>
+        <span className={css.crown}>
+          <span className="visuallyHidden">Restricted</span>
+          <Crown />
+        </span>
+      </Trigger>
+      <Content className="tooltip">
+        <div className={css.restrictedTo}>
+          <span>Restricted to:</span>
+          <Crown fill="var(--gray-6)" />
+        </div>
+        <div>
+          {restrictedTo}
+        </div>
+        <Arrow />
+      </Content>
+    </Tooltip>
+  )
+};
+
+export const Method: React.FC<{ method: string }> = ({ method }) => {
   const { canCall, wallet } = useNear()
   const user = wallet?.getAccountId() as string
   const [allowed, setAllowed] = useState<boolean>(true)
@@ -20,8 +56,14 @@ export const Method: React.FC<React.PropsWithChildren<{
     })
   }, [method, user, canCall])
 
+
   if (currentMethod === method) {
-    return <div>{element}</div>
+    return (
+      <div>
+        {snake(method)}
+        <Tip method={method} />
+      </div>
+    )
   }
 
   return (
@@ -36,7 +78,8 @@ export const Method: React.FC<React.PropsWithChildren<{
       className={allowed ? undefined : css.forbidden}
       title={allowed ? undefined : `Forbidden: ${whyForbidden}`}
     >
-      {element}
+      {snake(method)}
+      <Tip method={method} />
     </Link>
   )
 }
