@@ -12,22 +12,13 @@ type Items = {
 }
 
 export const Methods = () => {
-  const {
-    canCall,
-    changeMethods,
-    getDefinition,
-    viewMethods,
-    wallet,
-  } = useNear()
-  const [items, setItems] = useState<Items>()
-  const user = wallet?.getAccountId() as string
+  const { changeMethods, getDefinition, viewMethods } = useNear()
 
-  const toItem = useMemo(() => async (camel: string) => {
+  const toItem = useMemo(() => (camel: string) => {
     const snake = toSnake(camel)
     const restrictedTo = getDefinition(camel)?.allow
       ?.map(x => x.replace(/^::/, ''))
       ?.join(', ')
-    const [allowed, whyForbidden] = await canCall(camel, user)
 
     const Tip = restrictedTo && (
       <Tooltip>
@@ -52,23 +43,20 @@ export const Methods = () => {
 
     return [
       camel,
-      <span
-        className={allowed ? undefined : css.forbidden}
-        title={allowed ? undefined :
-          `Forbidden: ${whyForbidden}`
-        }
-      >
-        {snake}
-        {Tip}
-      </span>
+      <>{snake}{Tip}</>
     ] as const
-  }, [canCall, getDefinition, user])
+  }, [getDefinition])
+
+  const [items, setItems] = useState<Items>({
+    'View Methods': viewMethods.map(toItem),
+    'Change Methods': changeMethods.map(toItem),
+  })
 
   useEffect(() => {
     (async () => {
       setItems({
-        'View Methods': await Promise.all(viewMethods.map(toItem)),
-        'Change Methods': await Promise.all(changeMethods.map(toItem)),
+        'View Methods': viewMethods.map(toItem),
+        'Change Methods': changeMethods.map(toItem),
       })
     })()
   }, [viewMethods, changeMethods, toItem]);

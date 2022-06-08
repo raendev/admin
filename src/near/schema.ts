@@ -3,24 +3,30 @@ import { init } from "."
 import { readCustomSection } from "wasm-walrus-tools"
 import { ContractCodeView } from "near-api-js/lib/providers/provider"
 import { JSONSchema7 } from "json-schema"
+import * as localStorage from './localStorage'
 
-export async function fetchSchema(contract: string, near: naj.Near): Promise<JSONSchema7> {
+export async function fetchSchema(contract: string): Promise<JSONSchema7> {
+  const { near } = init(contract)
   // TODO handle either HTTP endpoint or IPFS hash
   const urlOrData = await fetchJsonAddressOrData(contract, near)
 
   // TODO cache schema JSON in localeStorage, return early here if available
 
   if (urlOrData.startsWith("https://")) {
-    const schema = fetch(urlOrData)
-    .then((response) => {
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
-      return response.json()
-    })
+    const schema = await fetch(urlOrData)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
+        return response.json()
+      })
+    localStorage.set(contract, schema)
     return schema;
   }
 
+  const schema = JSON.parse(urlOrData)
+  localStorage.set(contract, schema)
+
   // TODO validate schema adheres to JSONSchema7
-  return JSON.parse(urlOrData)
+  return schema
 }
 
 class NoCustomSection extends Error {
@@ -129,14 +135,19 @@ export interface SchemaInterface {
   canCall: (method: string, account: string) => Promise<readonly [boolean, string | undefined]>
 }
 
-type ContractName = string
-const parsedSchemaCache: Record<ContractName, SchemaInterface> = {}
+export function getSchemaCached(contract: string): SchemaInterface | undefined {
+  const schema = localStorage.get(contract) as JSONSchema7 | undefined
+  if (!schema) return undefined
+  return buildInterface(contract, schema)
+}
 
 export async function getSchema(contract: string): Promise<SchemaInterface> {
-  if (parsedSchemaCache[contract]) return parsedSchemaCache[contract]
+  const schema = await fetchSchema(contract)
+  return buildInterface(contract, schema)
+}
 
+function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface {
   const { near } = init(contract)
-  const schema = await fetchSchema(contract, near)
 
   function hasContractMethod(m: string, equalTo?: "change" | "view"): boolean {
     const def = schema?.definitions?.[m]
