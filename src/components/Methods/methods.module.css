@@ -1,3 +1,4 @@
+.forbidden,
 .restrictedTo {
   display: flex;
   gap: var(--spacing-xs);
