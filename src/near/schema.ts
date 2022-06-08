@@ -157,7 +157,7 @@ export async function getSchema(contract: string): Promise<SchemaInterface> {
   return buildInterface(contract, schema)
 }
 
-const canCallCache: Record<string, Promise<readonly [boolean, string | undefined]>> = {}
+const canCallCache: Record<string, Promise<string | string[]>> = {}
 
 function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface {
   const { near } = init(contract)
@@ -224,44 +224,52 @@ function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface 
     // if no `allows` field, then anyone can call this method; return true
     if (!hasField) return [true, undefined]
 
-    const cacheKey = `canCall:${method}:${account}`
+    const inRestrictedGroup = (await Promise.all(def.allow.map(async accountOrMethod => {
+      // if `allow` value doesn't start with `::`, then it's a literal account name
+      if (accountOrMethod.slice(0, 2) !== '::') {
+        return accountOrMethod === account
+      }
+      // if only has a `::` at beginning, is the name of a method in `contract`
+      if (accountOrMethod.split('::').length === 2) {
+        const [, method] = accountOrMethod.split('::')
+        const accountObj = await near.account(contract);
 
-    canCallCache[cacheKey] = canCallCache[cacheKey] ?? (async () => {
-      const inRestrictedGroup = (await Promise.all(def.allow.map(async accountOrMethod => {
-        // if `allow` value doesn't start with `::`, then it's a literal account name
-        if (accountOrMethod.slice(0, 2) !== '::') {
-          return accountOrMethod === account
-        }
-        // if only has a `::` at beginning, is the name of a method in `contract`
-        if (accountOrMethod.split('::').length === 2) {
-          const [, method] = accountOrMethod.split('::')
-          const accountObj = await near.account(contract);
-          const accounts = Array.from(await accountObj.viewFunction(contract, method))
-          return accounts.includes(account)
-        }
-        const [, contractName, method] = accountOrMethod.split('::')
-        const accountObj = await near.account(contractName);
-        const accounts = Array.from(await accountObj.viewFunction(contract, method))
+        canCallCache[accountOrMethod] = canCallCache[accountOrMethod] ?? (async () => {
+          return accountObj.viewFunction(contract, method)
+        })();
+
+        // TODO check that res is a string or an array of strings
+        const res = await canCallCache[accountOrMethod]
+        const accounts = Array.from(res)
+
         return accounts.includes(account)
-      }))).reduce((acc, inGroup) => acc || inGroup, false)
+      }
+      const [, contractName, method] = accountOrMethod.split('::')
+      const accountObj = await near.account(contractName);
 
-      const restrictedTo = def.allow.map((group, i) => {
-        const suffix = def.allow.length - 1 === i
-          ? ''
-          : def.allow.length - 2 === i
-          ? ' & '
-          : ', '
-        return group.replace(/^::/, '') + suffix
-      }).join('')
+      canCallCache[accountOrMethod] = canCallCache[accountOrMethod] ?? (async () => {
+        return accountObj.viewFunction(contractName, method)
+      })();
 
-      return inRestrictedGroup
-        ? [true, undefined]
-        : [false, `Only callable by ${restrictedTo}`]
-    })()
+      // TODO check that res is a string or an array of strings
+      const res = await canCallCache[accountOrMethod]
+      const accounts = Array.from(res)
 
-    const can = await canCallCache[cacheKey]
+      return accounts.includes(account)
+    }))).reduce((acc, inGroup) => acc || inGroup, false)
 
-    return can
+    const restrictedTo = def.allow.map((group, i) => {
+      const suffix = def.allow.length - 1 === i
+        ? ''
+        : def.allow.length - 2 === i
+        ? ' & '
+        : ', '
+      return group.replace(/^::/, '') + suffix
+    }).join('')
+
+    return inRestrictedGroup
+      ? [true, undefined]
+      : [false, `Only callable by ${restrictedTo}`]
   }
 
   return {
