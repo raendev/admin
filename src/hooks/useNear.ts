@@ -60,11 +60,12 @@ export default function useNear(): NearInterface | typeof stub {
         })
       }
 
+      const freshSchema = await getSchema(contract)
       setCache({
         ...cache,
         [contract]: {
           ...init(contract),
-          ...await getSchema(contract),
+          ...freshSchema,
         }
       })
     })()
