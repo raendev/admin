@@ -5,28 +5,35 @@ import { ContractCodeView } from "near-api-js/lib/providers/provider"
 import { JSONSchema7 } from "json-schema"
 import * as localStorage from './localStorage'
 
+const requestCache: Record<string, Promise<JSONSchema7>> = {}
+
 export async function fetchSchema(contract: string): Promise<JSONSchema7> {
-  const { near } = init(contract)
-  // TODO handle either HTTP endpoint or IPFS hash
-  const urlOrData = await fetchJsonAddressOrData(contract, near)
+  requestCache[contract] = requestCache[contract] || (async () => {
+    const { near } = init(contract)
 
-  // TODO cache schema JSON in localeStorage, return early here if available
+    // TODO handle either HTTP endpoint or IPFS hash
+    const urlOrData = await fetchJsonAddressOrData(contract, near)
 
-  if (urlOrData.startsWith("https://")) {
-    const schema = await fetch(urlOrData)
-      .then((response) => {
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
-        return response.json()
-      })
+    // TODO cache schema JSON in localeStorage, return early here if available
+
+    if (urlOrData.startsWith("https://")) {
+      const schema = await fetch(urlOrData)
+        .then((response) => {
+          if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
+          return response.json()
+        })
+      localStorage.set(contract, schema)
+      return schema;
+    }
+
+    const schema = JSON.parse(urlOrData)
     localStorage.set(contract, schema)
-    return schema;
-  }
 
-  const schema = JSON.parse(urlOrData)
-  localStorage.set(contract, schema)
+    // TODO validate schema adheres to JSONSchema7
+    return schema
+  })()
 
-  // TODO validate schema adheres to JSONSchema7
-  return schema
+  return requestCache[contract]
 }
 
 class NoCustomSection extends Error {
