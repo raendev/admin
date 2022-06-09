@@ -79,7 +79,7 @@ export function init(contract: string): ContractInterface {
 
   function signOut() {
     wallet.signOut()
-    window.location.replace(window.location.origin + window.location.pathname)
+    window.location.reload()
   }
 
   cache[contract] = { contract, config, near, wallet, signIn, signOut }
