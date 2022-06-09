@@ -5,10 +5,29 @@ import { Sidebar } from './Sidebar'
 import css from './layout.module.css'
 import useWindowDimensions from '../../hooks/useWindowDimensions'
 
+let hideSidebarTimeout: number
+
+// set to match the timing of the CSS `slideUp` animation; must be at least as long
+const HIDE_SIDEBAR_AFTER = 200
+
 export const Layout: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => {
   const { isMobile } = useWindowDimensions()
   const { method } = useParams<{ method: string }>()
-  const [open, setOpen] = useState(false)
+  const [open, setOpenRaw] = useState(false)
+  const [displaySidebar, setDisplaySidebar] = useState(false)
+
+  function setOpen(newOpen: boolean) {
+    setOpenRaw(newOpen)
+    if (newOpen) {
+      clearTimeout(hideSidebarTimeout)
+      setDisplaySidebar(true)
+    } else {
+      hideSidebarTimeout = window.setTimeout(
+        () => setDisplaySidebar(false),
+        HIDE_SIDEBAR_AFTER
+      )
+    }
+  }
 
   // close method when switching between mobile and desktop
   // also close menu after method selected from sidebar
@@ -25,10 +44,11 @@ export const Layout: React.FC<React.PropsWithChildren<unknown>> = ({ children })
             <div className={css.mobileTop}>
               <button
                 aria-controls="mobileSidebarWrap"
-                className={`${css.menu} ${open ? css.open : css.closed}`}
+                className={css.menu}
                 onClick={() => setOpen(!open)}
               >
-                <span className="visuallyHidden">{open ? 'close' : 'open'}</span>
+                <span className={open ? css.open : css.closed} aria-hidden />
+                <span className="visuallyHidden">{open ? 'Close Menu' : 'Open Menu'}</span>
               </button>
               <Link to="/" style={{ border: 'none', background: 'transparent' }}>
                 <Logo padding="0" />
@@ -38,16 +58,23 @@ export const Layout: React.FC<React.PropsWithChildren<unknown>> = ({ children })
           )}
           <ContractForm />
         </div>
+        {isMobile && (
+          <div
+            className={css.mobileSidebarWrap}
+            data-state={open ? 'open' : 'closed'}
+            id="mobileSidebarWrap"
+            aria-live="polite"
+            style={{ display: displaySidebar ? undefined : 'none' }}
+          >
+            <Sidebar />
+          </div>
+        )}
         <div
-          className={css.mobileSidebarWrap}
-          data-state={open ? 'open' : 'closed'}
-          aria-hidden={!open}
-          id="mobileSidebarWrap"
+          className="container"
+          style={{ marginTop: 'var(--spacing-l)' }}
+          id="mainContent" // referenced by links in `Methods/Method.tsx`
           aria-live="polite"
         >
-          <Sidebar />
-        </div>
-        <div className="container" style={{ marginTop: 'var(--spacing-l)' }}>
           {children}
         </div>
       </div>

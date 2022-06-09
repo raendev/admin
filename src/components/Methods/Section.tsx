@@ -18,17 +18,17 @@ export const Section: React.FC<React.PropsWithChildren<{
       open={open}
       className={`${css.section} ${!open && css.closed}`}
     >
-      <header>
+      <label>
         <h3>{heading}</h3>
         <Trigger asChild>
           <button
             className={css.chevron}
             onClick={() => setOpen(!open)}
           >
-            <span className="visuallyHidden">{open ? 'close' : 'open'}</span>
+            <span className="visuallyHidden">{open ? 'Collapse section' : 'Expand section'}</span>
           </button>
         </Trigger>
-      </header>
+      </label>
       <Content className={css.content} forceMount>
         {methods.map(method =>
           <Method

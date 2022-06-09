@@ -17,6 +17,7 @@
   height: 100svh;
   overflow-y: scroll;
   overflow-x: hidden;
+  overscroll-behavior: none;
 }
 
 .topBar {
@@ -46,9 +47,11 @@
 
 .mobileSidebarWrap {
   position: absolute;
+  overflow: hidden;
   width: 90%;
   left: 2.5%;
   z-index: 2;
+  max-height: 50000vh;
 }
 
 @keyframes fadeIn {
@@ -75,16 +78,13 @@
 
 .mobileSidebarWrap[data-state="open"] {
   animation: fadeIn 120ms ease-out forwards;
-  visibility: visible;
 }
 
 .mobileSidebarWrap[data-state="closed"] {
   animation: fadeOut 200ms ease-out forwards;
-  opacity: 0;
-  left: -500vh;
-  visibility: hidden;
+  max-height: 0;
   transition-delay: 200ms;
-  transition-property: visibility left;
+  transition-property: max-height;
   transition-duration: 0ms;
 }
 
@@ -98,12 +98,9 @@
   height: var(--spacing-l);
 }
 
-.menu:after {
-  display: block;
-}
-
-.menu.closed:after {
+.menu .closed:after {
   content: ' ';
+  display: block;
   background: url('./hamburger.svg');
   background-repeat: no-repeat;
   background-size: contain;
@@ -111,8 +108,9 @@
   height: 100%;
 }
 
-.menu.open:after {
+.menu .open:after {
   content: '⨉';
+  display: block;
   font-size: 1.5rem;
   position: relative;
   top: -0.15em;

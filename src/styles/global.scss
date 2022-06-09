@@ -403,6 +403,7 @@ fieldset#root > .form-group + .form-group {
 
 .errorHint {
   background: var(--bg-red-gradient);
+  color: var(--white);
   padding: var(--spacing-s);
   border-radius: var(--br-base);
 }
