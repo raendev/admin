@@ -146,14 +146,22 @@ export interface SchemaInterface {
   canCall: (method: string, account: string) => Promise<readonly [boolean, string | undefined]>
 }
 
-const inMemorySchemaCache: Record<string, JSONSchema7 | undefined> = {}
+type InMemoryCachedSchema = SchemaInterface & {
+  loadedAt: number
+};
 
-export function getSchemaCached(contract: string): SchemaInterface | undefined {
-  inMemorySchemaCache[contract] = inMemorySchemaCache[contract] ??
-    localStorage.get(contract) as JSONSchema7 | undefined
-  const schema = inMemorySchemaCache[contract]
+const inMemorySchemaCache: Record<string, InMemoryCachedSchema | undefined> = {}
+
+export function getSchemaCached(contract?: string): undefined | InMemoryCachedSchema {
+  if (!contract) return undefined
+  if (inMemorySchemaCache[contract]) return inMemorySchemaCache[contract]
+  const schema = localStorage.get(contract) as JSONSchema7 | undefined
   if (!schema) return undefined
-  return buildInterface(contract, schema)
+  inMemorySchemaCache[contract] = {
+    loadedAt: new Date().getTime(),
+    ...buildInterface(contract, schema),
+  };
+  return inMemorySchemaCache[contract]
 }
 
 export async function getSchema(contract: string): Promise<SchemaInterface> {

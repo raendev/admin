@@ -36,14 +36,16 @@ type NearInterface = ContractInterface & SchemaInterface & { stale?: true }
  */
 export default function useNear(): NearInterface | typeof stub {
   const { contract } = useParams<{ contract: ContractName }>()
-  const schema = contract && getSchemaCached(contract)
-  const [cache, setCache] = useState<Record<ContractName, NearInterface>>(!schema ? {} : {
-    [contract]: {
-      stale: true,
-      ...init(contract),
-      ...schema,
+  const [initialSchema] = useState(getSchemaCached(contract))
+  const [cache, setCache] = useState<Record<ContractName, NearInterface>>(
+    (!contract || !initialSchema) ? {} : {
+      [contract]: {
+        stale: true,
+        ...init(contract),
+        ...initialSchema,
+      }
     }
-  })
+  )
 
   useEffect(() => {
     if (!contract || (cache[contract] && !cache[contract].stale)) return
@@ -51,7 +53,7 @@ export default function useNear(): NearInterface | typeof stub {
     (async () => {
       /* First update with schema cached from localStorage while new schema loads from remote endpoint */
       const schema = getSchemaCached(contract)
-      if (schema) {
+      if (schema && (!initialSchema || initialSchema.loadedAt !== schema.loadedAt)) {
         setCache({
           ...cache,
           [contract]: {
@@ -72,7 +74,7 @@ export default function useNear(): NearInterface | typeof stub {
         })
       }
     })()
-  }, [cache, contract])
+  }, [initialSchema, cache, contract])
 
   if (!contract) return stub
   return cache[contract] ?? stub
