@@ -3,24 +3,41 @@ import { init } from "."
 import { readCustomSection } from "wasm-walrus-tools"
 import { ContractCodeView } from "near-api-js/lib/providers/provider"
 import { JSONSchema7 } from "json-schema"
+import * as localStorage from './localStorage'
 
-export async function fetchSchema(contract: string, near: naj.Near): Promise<JSONSchema7> {
-  // TODO handle either HTTP endpoint or IPFS hash
-  const urlOrData = await fetchJsonAddressOrData(contract, near)
+const fetchSchemaCache: Record<string, Promise<JSONSchema7>> = {}
 
-  // TODO cache schema JSON in localeStorage, return early here if available
+export async function fetchSchema(contract: string): Promise<JSONSchema7> {
+  const cacheKey = `fetchSchema:${contract}`
 
-  if (urlOrData.startsWith("https://")) {
-    const schema = fetch(urlOrData)
-    .then((response) => {
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
-      return response.json()
-    })
-    return schema;
-  }
+  fetchSchemaCache[cacheKey] = fetchSchemaCache[cacheKey] ?? (async () => {
+    const { near } = init(contract)
 
-  // TODO validate schema adheres to JSONSchema7
-  return JSON.parse(urlOrData)
+    // TODO handle either HTTP endpoint or IPFS hash
+    const urlOrData = await fetchJsonAddressOrData(contract, near)
+
+    // TODO cache schema JSON in localeStorage, return early here if available
+
+    if (urlOrData.startsWith("https://")) {
+      const schema = await fetch(urlOrData)
+        .then((response) => {
+          if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
+          return response.json()
+        })
+      localStorage.set(contract, schema)
+      return schema;
+    }
+
+    const schema = JSON.parse(urlOrData)
+    localStorage.set(contract, schema)
+
+    // TODO validate schema adheres to JSONSchema7
+    return schema
+  })()
+
+  const schema = await fetchSchemaCache[cacheKey]
+
+  return schema
 }
 
 class NoCustomSection extends Error {
@@ -129,14 +146,33 @@ export interface SchemaInterface {
   canCall: (method: string, account: string) => Promise<readonly [boolean, string | undefined]>
 }
 
-type ContractName = string
-const parsedSchemaCache: Record<ContractName, SchemaInterface> = {}
+type InMemoryCachedSchema = SchemaInterface & {
+  loadedAt: number
+};
+
+const inMemorySchemaCache: Record<string, InMemoryCachedSchema | undefined> = {}
+
+export function getSchemaCached(contract?: string): undefined | InMemoryCachedSchema {
+  if (!contract) return undefined
+  if (inMemorySchemaCache[contract]) return inMemorySchemaCache[contract]
+  const schema = localStorage.get(contract) as JSONSchema7 | undefined
+  if (!schema) return undefined
+  inMemorySchemaCache[contract] = {
+    loadedAt: new Date().getTime(),
+    ...buildInterface(contract, schema),
+  };
+  return inMemorySchemaCache[contract]
+}
 
 export async function getSchema(contract: string): Promise<SchemaInterface> {
-  if (parsedSchemaCache[contract]) return parsedSchemaCache[contract]
+  const schema = await fetchSchema(contract)
+  return buildInterface(contract, schema)
+}
 
+const canCallCache: Record<string, Promise<string | string[]>> = {}
+
+function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface {
   const { near } = init(contract)
-  const schema = await fetchSchema(contract, near)
 
   function hasContractMethod(m: string, equalTo?: "change" | "view"): boolean {
     const def = schema?.definitions?.[m]
@@ -209,12 +245,28 @@ export async function getSchema(contract: string): Promise<SchemaInterface> {
       if (accountOrMethod.split('::').length === 2) {
         const [, method] = accountOrMethod.split('::')
         const accountObj = await near.account(contract);
-        const accounts = Array.from(await accountObj.viewFunction(contract, method))
+
+        canCallCache[accountOrMethod] = canCallCache[accountOrMethod] ?? (async () => {
+          return accountObj.viewFunction(contract, method)
+        })();
+
+        // TODO check that res is a string or an array of strings
+        const res = await canCallCache[accountOrMethod]
+        const accounts = Array.from(res)
+
         return accounts.includes(account)
       }
       const [, contractName, method] = accountOrMethod.split('::')
       const accountObj = await near.account(contractName);
-      const accounts = Array.from(await accountObj.viewFunction(contract, method))
+
+      canCallCache[accountOrMethod] = canCallCache[accountOrMethod] ?? (async () => {
+        return accountObj.viewFunction(contractName, method)
+      })();
+
+      // TODO check that res is a string or an array of strings
+      const res = await canCallCache[accountOrMethod]
+      const accounts = Array.from(res)
+
       return accounts.includes(account)
     }))).reduce((acc, inGroup) => acc || inGroup, false)
 
