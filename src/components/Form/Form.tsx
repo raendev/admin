@@ -30,6 +30,7 @@ function hasSuccessValue(obj: {}): obj is { SuccessValue: string } {
 }
 
 function parseResult(result: string): string {
+  if (!result) return result
   return JSON.stringify(
     JSON.parse(Buffer.from(result, 'base64').toString()),
     null,
@@ -45,13 +46,13 @@ const Display: React.FC<React.PropsWithChildren<{
   tx?: string
 }>> = ({ result, error, tx }) => {
   const { config } = useNear()
-  if (!result && !error) return null
+  if (result === undefined && error === undefined) return null
 
   return (
     <>
-      <h1>{result ? "Result" : "Error"}</h1>
-      <pre className={error && css.error}>
-        <code className={css.result}>
+      <h1>{result !== undefined ? "Result" : "Error"}</h1>
+      <pre className={`${error && css.error} ${css.result}`}>
+        <code>
           {result ?? error}
         </code>
       </pre>
@@ -191,7 +192,7 @@ export function Form() {
         const status = res?.status
         if (!status) setResult(undefined)
         else if (isBasic(status)) setResult(status)
-        else if (status.SuccessValue) {
+        else if (status.SuccessValue !== undefined) {
           setResult(parseResult(status.SuccessValue))
         } else if (status.Failure) {
           setResult(`${status.Failure.error_type}: ${status.Failure.error_message}`)
