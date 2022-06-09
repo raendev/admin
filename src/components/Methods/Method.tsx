@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import snake from "to-snake-case";
-import { useParams, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Root as Tooltip, Trigger, Content, Arrow } from '@radix-ui/react-tooltip';
 import useNear from '../../hooks/useNear';
 import css from './methods.module.css';
@@ -42,12 +42,15 @@ const Tip: React.FC<{ method: string }> = ({ method }) => {
   )
 };
 
-export const Method: React.FC<{ method: string }> = ({ method }) => {
+export const Method: React.FC<{
+  method: string
+  contract?: string
+  isCurrentMethod: boolean
+}> = ({ method, contract, isCurrentMethod }) => {
   const { canCall, wallet } = useNear()
   const user = wallet?.getAccountId() as string
   const [allowed, setAllowed] = useState<boolean>(true)
   const [whyForbidden, setWhyForbidden] = useState<string>()
-  const { contract, method: currentMethod } = useParams<{ contract: string, method: string }>()
 
   useEffect(() => {
     canCall(method, user).then(can => {
@@ -57,7 +60,7 @@ export const Method: React.FC<{ method: string }> = ({ method }) => {
   }, [method, user, canCall])
 
 
-  if (currentMethod === method) {
+  if (isCurrentMethod) {
     return (
       <div>
         {snake(method)}
