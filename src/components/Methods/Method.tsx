@@ -62,7 +62,10 @@ export const Method: React.FC<{
 
   if (isCurrentMethod) {
     return (
-      <div>
+      <div
+        className={allowed ? undefined : css.forbidden}
+        title={allowed ? undefined : `Forbidden: ${whyForbidden}`}
+      >
         {snake(method)}
         <Tip method={method} />
       </div>
