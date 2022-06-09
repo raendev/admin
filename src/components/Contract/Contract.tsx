@@ -1,10 +1,12 @@
 import * as React from "react";
 import { useParams } from "react-router-dom"
 import { init } from "../../near"
+import useNear from "../../hooks/useNear"
 import useWindowDimensions from '../../hooks/useWindowDimensions'
 import { Form, Layout, NotFound } from ".."
 
 export function Contract() {
+  const { schema } = useNear()
   const { isMobile } = useWindowDimensions()
   const { contract, method } = useParams<{ contract: string, method: string }>()
   let errorMessage: string | null = null
@@ -31,6 +33,29 @@ export function Contract() {
         </NotFound>
       </Layout>
     )
+  }
+
+  if (!schema) {
+    return (
+      <div style={{
+        alignItems: 'center',
+        display: 'flex',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        height: '100vh',
+      }}>
+        <div style={{
+          display: 'flex',
+          gap: 'var(--spacing-l)',
+        }}>
+          <div className="loader" />
+          <div>
+            <h1>Loading schema...</h1>
+            <p>A one-time thing. Should just take a second.</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!method) {
