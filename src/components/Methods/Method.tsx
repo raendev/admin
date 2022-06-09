@@ -74,6 +74,7 @@ export const Method: React.FC<{
 
   return (
     <Link
+      aria-controls="mainContent"
       to={`/${contract}/${method}`}
       onClick={() => {
         // clear any params set by NEAR Wallet when navigating to new method
