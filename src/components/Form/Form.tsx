@@ -257,7 +257,7 @@ export function Form() {
           </label>
           <div style={{ marginTop: 'var(--spacing-l)' }}>
             {loading
-              ? <div className={css.loader} />
+              ? <div className="loader" />
               : <Display result={result} error={error} tx={tx} />
             }
           </div>
