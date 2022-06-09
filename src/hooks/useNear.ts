@@ -64,7 +64,7 @@ export default function useNear(): NearInterface | typeof stub {
       }
 
       const freshSchema = await getSchema(contract)
-      if (!equal(freshSchema, schema)) {
+      if (!equal(freshSchema.schema, schema?.schema)) {
         setCache({
           ...cache,
           [contract]: {
