@@ -107,7 +107,7 @@ function allFilled(formData?: FormData, required?: string[]) {
 }
 
 export function Form() {
-  const { canCall, config, wallet, getMethod, getDefinition } = useNear()
+  const { canCall, config, currentUser, getMethod, getDefinition } = useNear()
   const { contract, method } = useParams<{ contract: string, method: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const formData = decodeData(searchParams)
@@ -121,36 +121,37 @@ export function Form() {
   const nonReactParams = window.location.search
 
   useEffect(() => {
-    if (!wallet || !config || !nonReactParams) return
+    (async () => {
+      const user = await currentUser
+      if (!user || !config || !nonReactParams) return
 
-    const params = new URLSearchParams(nonReactParams)
-    const txHash = params.get('transactionHashes') ?? undefined
-    const errMsg = params.get('errorMessage') ?? undefined
-    const errCode = params.get('errorCode') ?? undefined
+      const params = new URLSearchParams(nonReactParams)
+      const txHash = params.get('transactionHashes') ?? undefined
+      const errMsg = params.get('errorMessage') ?? undefined
+      const errCode = params.get('errorCode') ?? undefined
 
-    if (errMsg) setError(decodeURIComponent(errMsg))
-    else if (errCode) setError(decodeURIComponent(errCode))
-    else if (txHash) {
-      (async () => {
+      if (errMsg) setError(decodeURIComponent(errMsg))
+      else if (errCode) setError(decodeURIComponent(errCode))
+      else if (txHash) {
         const rpc = new JsonRpcProvider(config.nodeUrl)
-        const tx = await rpc.txStatus(txHash, wallet.getAccountId())
+        const tx = await rpc.txStatus(txHash, user.accountId)
         if (!hasSuccessValue(tx.status)) return undefined
         setResult(parseResult(tx.status.SuccessValue))
         setTx(txHash)
-      })()
-    }
-  }, [config, wallet, nonReactParams])
+      }
+    })()
+  }, [config, currentUser, nonReactParams])
 
   useEffect(() => {
     if (!method) {
       setWhyForbidden(undefined)
     } else {
       (async () => {
-        const [, why] = await canCall(method, wallet?.getAccountId())
+        const [, why] = await canCall(method, (await currentUser)?.accountId)
         setWhyForbidden(why)
       })()
     }
-  }, [canCall, method, wallet]);
+  }, [canCall, method, currentUser]);
 
   const setFormData = useMemo(() => ({ formData: newFormData }: WrappedFormData) => {
     setSearchParams(
@@ -170,17 +171,18 @@ export function Form() {
     setLoading(true)
     setError(undefined)
     setTx(undefined)
-    if (!contract || !method) return
+    const user = await currentUser
+    if (!contract || !method || !user) return
     try {
       if (getDefinition(method)?.contractMethod === 'view') {
-        const res = await wallet?.account().viewFunction(
+        const res = await user.viewFunction(
           contract,
           snake(method),
           formData?.args
         )
         setResult(JSON.stringify(res, null, 2));
       } else {
-        const res = await wallet?.account().functionCall({
+        const res = await user.functionCall({
           contractId: contract,
           methodName: snake(method),
           args: formData?.args ?? {},
@@ -210,7 +212,7 @@ export function Form() {
     } finally {
       setLoading(false)
     }
-  }, [contract, getDefinition, method, wallet])
+  }, [contract, getDefinition, method, currentUser])
 
   // update page title based on current contract & method; reset on component unmount
   useEffect(() => {
@@ -221,14 +223,17 @@ export function Form() {
 
   // at first load, auto-submit if required arguments are fill in
   useEffect(() => {
-    if (!method) return
-    const def = getDefinition(method)
-    if (def?.contractMethod === 'view' && allFilled(formData, def?.properties?.args?.required)) {
-      setTimeout(() => onSubmit({ formData }), 100)
-    }
-    // purposely only re-check this when method changes or when schema fetch completes (wallet becomes defined);
+    (async () => {
+      const user = await currentUser
+      if (!method || !user) return
+      const def = getDefinition(method)
+      if (def?.contractMethod === 'view' && allFilled(formData, def?.properties?.args?.required)) {
+        setTimeout(() => onSubmit({ formData }), 100)
+      }
+    })()
+    // purposely only re-check this when method changes or when schema fetch completes (currentUser becomes defined);
     // don't want to auto-submit while filling in form, but do when changing methods
-  }, [wallet, method]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentUser, method]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!method) return null
 

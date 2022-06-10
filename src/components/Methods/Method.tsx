@@ -47,18 +47,19 @@ export const Method: React.FC<{
   contract?: string
   isCurrentMethod: boolean
 }> = ({ method, contract, isCurrentMethod }) => {
-  const { canCall, wallet } = useNear()
-  const user = wallet?.getAccountId() as string
+  const { canCall, currentUser } = useNear()
   const [allowed, setAllowed] = useState<boolean>(true)
   const [whyForbidden, setWhyForbidden] = useState<string>()
 
   useEffect(() => {
-    canCall(method, user).then(can => {
-      setAllowed(can[0])
-      setWhyForbidden(can[1] || undefined)
-    })
-  }, [method, user, canCall])
-
+    (async () => {
+      const user = await currentUser
+      canCall(method, user?.accountId).then(can => {
+        setAllowed(can[0])
+        setWhyForbidden(can[1] || undefined)
+      })
+    })()
+  }, [method, currentUser, canCall])
 
   if (isCurrentMethod) {
     return (

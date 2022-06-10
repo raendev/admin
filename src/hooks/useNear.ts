@@ -15,7 +15,7 @@ const stub = {
   contract: undefined,
   config: undefined,
   near: undefined,
-  wallet: undefined,
+  currentUser: Promise.resolve(undefined),
   signIn: () => { },
   signOut: () => { },
   schema: undefined,
