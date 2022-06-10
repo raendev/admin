@@ -32,12 +32,12 @@
   margin-top: var(--spacing-l);
 }
 
-.body h2:nth-of-type(-n+2):after {
+.body h2:first-child:after {
   content: ' 👇🏿';
 }
 
 @media(prefers-color-scheme: dark) {
-  .body h2:nth-of-type(-n+2):after {
+  .body h2:first-child:after {
     content: ' 👇🏻';
   }
 }
