@@ -16,7 +16,7 @@ export function Home() {
         <div className="container">
           <h1>RAEN makes it easy to explore contracts on NEAR.</h1>
           <p className={css.lead}>
-            Enter a contract name below (i.e. <strong>v2.tenk.testnet</strong>)
+            Enter a contract name below (i.e. <Link to="/counter.raendev.testnet">counter.raendev.testnet</Link>)
           </p>
           <ContractForm autoFocus />
         </div>
@@ -27,36 +27,8 @@ export function Home() {
         </div>
       </div>
       <div className={`container ${css.body}`}>
-        <h2>Use it</h2>
-        <p>
-          Install:
-        </p>
-        <pre>
-          <code>cargo install raen</code>
-        </pre>
-        <p>
-          This will eventually wrap near-cli, but for now you need both:
-        </p>
-        <pre>
-          <code>npm install --global near-cli</code>
-        </pre>
-        <p>
-          Build (Rust only; other langs <a href="https://github.com/bytecodealliance/wit-bindgen">coming soon</a>):
-        </p>
-        <pre>
-          <code>raen build</code>
-        </pre>
-        <p>
-          Deploy:
-        </p>
-        <pre>
-          <code>near deploy --wasmFile target/res/CRATE_NAME.wasm</code>
-        </pre>
-        <p>
-          Then enter your contract's account name above.
-        </p>
-        <h2>Learn it</h2>
-        <p>Not sure what to deploy? Try <strong><a href="https://raen.dev/guide">✨ The Guide ✨</a></strong>, or poke at one of these examples:</p>
+        <h2>Try it</h2>
+        <p>Poke at one of these examples:</p>
         <ul>
           {featuredContracts.map(([contract, description]) => (
             <li key={contract}>
@@ -69,6 +41,7 @@ export function Home() {
             </li>
           ))}
         </ul>
+        <p>And learn to use it with <strong><a href="https://raen.dev/guide">✨ The Guide ✨</a></strong></p>
         <h2>How it works: Wasm 💖️ Wit</h2>
         <p>
           <a href="https://github.com/bytecodealliance/wit-bindgen">Wit</a> is an emerging standard to ease interoperability between programs compiled to WebAssembly, aka <a href="https://webassembly.org/">Wasm</a>. (Wit stands for "WebAssembly Interface Types.") Wit will eventually merge with Wasm, allowing all compiled Wasm modules to explain their interfaces to other Wasm modules and their developers.
