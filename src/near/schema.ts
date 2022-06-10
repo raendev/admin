@@ -143,7 +143,7 @@ export interface SchemaInterface {
    * @param account string Account name that may or may not be allowed to call `method` on `contract`
    * @returns [boolean, string] boolean is true of `account` can call `method` on `contract`, false if not. string contains reason why user is forbidden.
    */
-  canCall: (method: string, account: string) => Promise<readonly [boolean, string | undefined]>
+  canCall: (method: string, account?: string) => Promise<readonly [boolean, string | undefined]>
 }
 
 type InMemoryCachedSchema = SchemaInterface & {
@@ -220,16 +220,16 @@ function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface 
     return def as MethodDefinition
   }
 
-  async function canCall(method: string, account: string): Promise<readonly [false, string]>;
-  async function canCall(method: string, account: string): Promise<readonly [true, undefined]>;
-  async function canCall(method: string, account: string): Promise<readonly [boolean, string | undefined]> {
+  async function canCall(method: string, account?: string): Promise<readonly [false, string]>;
+  async function canCall(method: string, account?: string): Promise<readonly [true, undefined]>;
+  async function canCall(method: string, account?: string): Promise<readonly [boolean, string | undefined]> {
     const def = getDefinition(method)
 
-    if (!def) return [false, `No method "${method}" exists for contract "${contract}"`]
+    if (!def || !def.contractMethod) return [false, `No method "${method}" exists for contract "${contract}"`]
 
+    if (def.contractMethod === 'view') return [true, undefined]
 
-    if (def.contractMethod === 'change' && !account) return [false, 'Must sign in']
-
+    if (!account) return [false, 'Must sign in']
 
     const hasField = hasAllowProperty(def)
 

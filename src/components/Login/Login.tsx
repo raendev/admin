@@ -1,29 +1,42 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
+import { ConnectedWalletAccount } from 'near-api-js'
 import useNear from "../../hooks/useNear"
 import { Dropdown } from ".."
 import { Wallet } from './Wallet'
 import css from './login.module.css'
 
 export function Login() {
-  const { wallet, signIn, signOut } = useNear()
+  const { currentUser, signIn, signOut } = useNear()
+  const [user, setUser] = useState<ConnectedWalletAccount>()
+  const [loaded, setLoaded] = useState(false)
 
-  if (!wallet) return null
+  useEffect(() => {
+    currentUser.then(u => {
+      setUser(u)
+      setLoaded(true)
+    })
+  }, [currentUser])
 
-  const currentUser = wallet.getAccountId()
-
-  const el = currentUser
-    ? <Dropdown
-        trigger={
-          <button title={currentUser}>
-            <Wallet />
-            <span className="ellipsis">
-              {currentUser}
-            </span>
-          </button>
-        }
-        items={[{ children: "Sign Out", onSelect: signOut }]}
-      />
-    : <button onClick={signIn}><Wallet />Sign In</button>;
-
-  return <div className={css.login}>{el}</div>
+  return (
+    <div
+      className={css.login}
+      style={{ visibility: loaded ? undefined : 'hidden' }}
+    >
+      {user ? (
+        <Dropdown
+          trigger={
+            <button title={user.accountId}>
+              <Wallet />
+              <span className="ellipsis">
+                {user.accountId}
+              </span>
+            </button>
+          }
+          items={[{ children: "Sign Out", onSelect: signOut }]}
+        />
+      ) : (
+        <button onClick={signIn}><Wallet />Sign In</button>
+      )}
+    </div>
+  )
 }

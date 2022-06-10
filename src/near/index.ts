@@ -37,7 +37,7 @@ export interface ContractInterface {
   contract: string,
   config: typeof testnetConfig | typeof mainnetConfig
   near: naj.Near
-  wallet: naj.WalletConnection
+  currentUser: Promise<undefined | naj.ConnectedWalletAccount>
   signIn: () => void
   signOut: () => void
 }
@@ -73,7 +73,37 @@ export function init(contract: string): ContractInterface {
 
   const wallet = new naj.WalletConnection(near)
 
+  /**
+   * Only return current user if they're authenticated against the given contract.
+   *
+   * Put another way, make sure that current browser session has a FunctionCall
+   * Access Key that allows it to call the given `contract` on behalf of the
+   * current user.
+   *
+   * @param contract The address of a NEAR contract
+   * @returns `wallet.account()` if authenticated against given `contract`
+   */
+  async function getCurrentUser(contract: string): Promise<undefined | naj.ConnectedWalletAccount> {
+    if (!wallet.getAccountId()) return undefined
+
+    const currentUser = wallet.account()
+
+    // `findAccessKey` ignores the provided `contract` and returns whatever key is in localStorage
+    const key = await currentUser.findAccessKey(contract, [])
+
+    if (!key || !key.accessKey) return undefined
+
+    // FullAccess keys don't provide info about what contract they target, so we
+    // need to assume the worst. This should never happen for this app, though.
+    if (key.accessKey.permission === 'FullAccess') return undefined
+
+    return contract === key.accessKey.permission.FunctionCall.receiver_id
+      ? currentUser
+      : undefined
+  }
+
   function signIn() {
+    wallet.signOut()
     wallet.requestSignIn({ contractId: contract })
   }
 
@@ -82,7 +112,15 @@ export function init(contract: string): ContractInterface {
     window.location.reload()
   }
 
-  cache[contract] = { contract, config, near, wallet, signIn, signOut }
+  cache[contract] = {
+    contract,
+    config,
+    near,
+    currentUser: getCurrentUser(contract),
+    signIn,
+    signOut,
+  }
 
   return cache[contract]
 }
+
