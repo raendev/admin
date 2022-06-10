@@ -55,7 +55,8 @@ export function Home() {
         <p>
           Then enter your contract's account name above.
         </p>
-        <p>Not ready to deploy a contract? Try one of these examples:</p>
+        <h2>Learn it</h2>
+        <p>Not sure what to deploy? Try <strong><a href="https://raen.dev/guide">✨ The Guide ✨</a></strong>, or poke at one of these examples:</p>
         <ul>
           {featuredContracts.map(([contract, description]) => (
             <li key={contract}>
