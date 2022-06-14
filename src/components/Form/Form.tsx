@@ -107,7 +107,7 @@ function allFilled(formData?: FormData, required?: string[]) {
 }
 
 export function Form() {
-  const { canCall, config, currentUser, getMethod, getDefinition } = useNear()
+  const { near, canCall, config, currentUser, getMethod, getDefinition } = useNear()
   const { contract, method } = useParams<{ contract: string, method: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const formData = decodeData(searchParams)
@@ -171,17 +171,19 @@ export function Form() {
     setLoading(true)
     setError(undefined)
     setTx(undefined)
-    const user = await currentUser
-    if (!contract || !method || !user) return
+    if (!near || !contract || !method) return
     try {
       if (getDefinition(method)?.contractMethod === 'view') {
-        const res = await user.viewFunction(
+        const account = await near.account(contract)
+        const res = await account.viewFunction(
           contract,
           snake(method),
           formData?.args
         )
         setResult(JSON.stringify(res, null, 2));
       } else {
+        const user = await currentUser
+        if (!user) throw new Error('Forbidden: must sign in')
         const res = await user.functionCall({
           contractId: contract,
           methodName: snake(method),
@@ -212,7 +214,7 @@ export function Form() {
     } finally {
       setLoading(false)
     }
-  }, [contract, getDefinition, method, currentUser])
+  }, [near, contract, getDefinition, method, currentUser])
 
   // update page title based on current contract & method; reset on component unmount
   useEffect(() => {
@@ -223,17 +225,16 @@ export function Form() {
 
   // at first load, auto-submit if required arguments are fill in
   useEffect(() => {
+    if (!method || !schema) return
     (async () => {
-      const user = await currentUser
-      if (!method || !user) return
       const def = getDefinition(method)
       if (def?.contractMethod === 'view' && allFilled(formData, def?.properties?.args?.required)) {
         setTimeout(() => onSubmit({ formData }), 100)
       }
     })()
-    // purposely only re-check this when method changes or when schema fetch completes (currentUser becomes defined);
+    // purposely only re-check this when method changes or when schema fetch completes;
     // don't want to auto-submit while filling in form, but do when changing methods
-  }, [currentUser, method]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [schema, method]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!method) return null
 
