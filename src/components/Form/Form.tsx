@@ -109,6 +109,7 @@ function allFilled(formData?: FormData, required?: string[]) {
 export function Form() {
   const { near, canCall, config, currentUser, getMethod, getDefinition } = useNear()
   const { contract, method } = useParams<{ contract: string, method: string }>()
+  const def = method ? getDefinition(method) : undefined
   const [searchParams, setSearchParams] = useSearchParams()
   const formData = decodeData(searchParams)
   const [liveValidate, setLiveValidate] = useState<boolean>(false)
@@ -225,18 +226,18 @@ export function Form() {
 
   // at first load, auto-submit if required arguments are fill in
   useEffect(() => {
-    if (!method || !schema) return
-    (async () => {
-      const def = getDefinition(method)
-      if (def?.contractMethod === 'view' && allFilled(formData, def?.properties?.args?.required)) {
-        setTimeout(() => onSubmit({ formData }), 100)
-      }
-    })()
+    if (!def) return
+    if (def.contractMethod === 'view' && allFilled(formData, def.properties?.args?.required)) {
+      setTimeout(() => onSubmit({ formData }), 100)
+    }
     // purposely only re-check this when method changes or when schema fetch completes;
     // don't want to auto-submit while filling in form, but do when changing methods
-  }, [schema, method]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [def]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!method) return null
+
+  const hasInputs = def?.contractMethod === 'change' ||
+    Object.keys(def?.properties?.args?.properties ?? {}).length > 0
 
   return (
     <>
@@ -249,19 +250,31 @@ export function Form() {
           <FormComponent
             key={method /* re-initialize form when method changes */}
             disabled={!!whyForbidden}
+            uiSchema={{
+              'ui:submitButtonOptions': {
+                norender: !hasInputs,
+                submitText: 'Submit',
+                props: {
+                  disabled: !!whyForbidden,
+                  title: whyForbidden,
+                },
+              }
+            }}
             liveValidate={liveValidate}
             schema={schema}
             formData={formData}
             onChange={setFormData}
             onSubmit={onSubmit}
           />
-          <label>
-            <input
-              type="checkbox"
-              onChange={e => setLiveValidate(e.target.checked)}
-            />
-            Live Validation
-          </label>
+          {hasInputs && (
+            <label>
+              <input
+                type="checkbox"
+                onChange={e => setLiveValidate(e.target.checked)}
+              />
+              Live Validation
+            </label>
+          )}
           <div style={{ marginTop: 'var(--spacing-l)' }}>
             {loading
               ? <div className="loader" />
