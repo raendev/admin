@@ -42,17 +42,24 @@ export const Layout: React.FC<React.PropsWithChildren<unknown>> = ({ children })
         <div className={`${isMobile ? 'bokeh' : ''} ${css.topBar}`}>
           {isMobile && (
             <div className={css.mobileTop}>
-              <button
-                aria-controls="mobileSidebarWrap"
-                className={css.menu}
-                onClick={() => setOpen(!open)}
-              >
-                <span className={open ? css.open : css.closed} aria-hidden />
-                <span className="visuallyHidden">{open ? 'Close Menu' : 'Open Menu'}</span>
-              </button>
-              <Link to="/" style={{ border: 'none', background: 'transparent' }}>
-                <Logo padding="0" />
-              </Link>
+              <div style={{ display: 'flex', gap: 'var(--spacing-m)', alignItems: 'center' }}>
+                <button
+                  aria-controls="mobileSidebarWrap"
+                  className={css.menu}
+                  onClick={() => setOpen(!open)}
+                  style={{ flex: '0 0 auto' }}
+                >
+                  <span className={open ? css.open : css.closed} aria-hidden />
+                  <span className="visuallyHidden">{open ? 'Close Menu' : 'Open Menu'}</span>
+                </button>
+                <Link to="/" style={{
+                  border: 'none',
+                  background: 'transparent',
+                  flex: '0 1 90px',
+                }}>
+                  <Logo padding="0" width="auto" />
+                </Link>
+              </div>
               <Login />
             </div>
           )}

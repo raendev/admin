@@ -12,16 +12,18 @@ export const Dropdown: React.FC<React.PropsWithChildren<{
         {trigger}
       </DropdownMenu.Trigger>
 
-      <DropdownMenu.Content className={css.content}>
-        {items.map(({ className, ...props }, i) => (
-          <DropdownMenu.Item
-            key={i}
-            className={`${css.item} ${className}`}
-            {...props}
-          />
-        ))}
-        <DropdownMenu.Arrow className={css.arrow} />
-      </DropdownMenu.Content>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content className={css.content}>
+          {items.map(({ className, ...props }, i) => (
+            <DropdownMenu.Item
+              key={i}
+              className={`${css.item} ${className}`}
+              {...props}
+            />
+          ))}
+          <DropdownMenu.Arrow className={css.arrow} />
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
     </DropdownMenu.Root>
   )
 }
