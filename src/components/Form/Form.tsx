@@ -45,21 +45,17 @@ const Display: React.FC<React.PropsWithChildren<{
   result?: string
   error?: string
   tx?: string
-}>> = ({ result, error, tx }) => {
+  logs?: string[]
+}>> = ({ result, error, tx, logs }) => {
   const { config } = useNear()
   if (result === undefined && error === undefined) return null
 
   return (
     <>
       <h1>{result !== undefined ? "Result" : "Error"}</h1>
-      <pre className={`${error && css.error} ${css.result}`}>
-        <code>
-          {result ?? error}
-        </code>
-      </pre>
       {tx && (
         <p>
-          View transaction details on{' '}
+          View full transaction details on{' '}
           <a
             rel="noreferrer"
             href={`https://explorer.${config?.networkId}.near.org/transactions/${tx}`}
@@ -71,6 +67,24 @@ const Display: React.FC<React.PropsWithChildren<{
             target="_blank"
           >nearblocks.io</a>.
         </p>
+      )}
+      {Boolean(logs?.length || tx) && (
+        <h2>Return value</h2>
+      )}
+      <pre className={`${error && css.error} ${css.result}`}>
+        <code>
+          {result ?? error}
+        </code>
+      </pre>
+      {(logs && logs.length > 0) && (
+        <>
+          <h2>Logs</h2>
+          <ul>
+            {logs.map((log, i) =>
+              <li key={i}>{log}</li>
+            )}
+          </ul>
+        </>
       )}
     </>
   )
@@ -117,6 +131,7 @@ export function Form() {
   const [liveValidate, setLiveValidate] = useState<boolean>(false)
   const [result, setResult] = useState<string>()
   const [tx, setTx] = useState<string>()
+  const [logs, setLogs] = useState<string[]>()
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<any>()
   const [whyForbidden, setWhyForbidden] = useState<string>()
@@ -168,12 +183,14 @@ export function Form() {
     setResult(undefined)
     setError(undefined)
     setTx(undefined)
+    setLogs(undefined)
   }, [contract, method]);
 
   const onSubmit = useMemo(() => async ({ formData }: WrappedFormData) => {
     setLoading(true)
     setError(undefined)
     setTx(undefined)
+    setLogs(undefined)
     if (!near || !contract || !method) return
     try {
       if (getDefinition(method)?.contractMethod === 'view') {
@@ -195,6 +212,7 @@ export function Form() {
         })
 
         setTx(res?.transaction_outcome?.id)
+        setLogs(res?.receipts_outcome.map(receipt => receipt.outcome.logs).flat())
 
         const status = res?.status
         if (!status) setResult(undefined)
@@ -241,7 +259,7 @@ export function Form() {
   if (!method) {
     return (
       <>
-        <h1>
+        <h1 style={{ margin: 0 }}>
           <WithWBRs word={contract} breakOn="." />
         </h1>
         <p>
@@ -256,7 +274,7 @@ export function Form() {
 
   return (
     <>
-      <h1>
+      <h1 style={{ margin: 0 }}>
         <WithWBRs word={snake(method)} />
       </h1>
       {whyForbidden && <p className="errorHint">Forbidden: {whyForbidden}</p>}
@@ -293,7 +311,7 @@ export function Form() {
           <div style={{ marginTop: 'var(--spacing-l)' }}>
             {loading
               ? <div className="loader" />
-              : <Display result={result} error={error} tx={tx} />
+              : <Display result={result} error={error} tx={tx} logs={logs} />
             }
           </div>
         </>
