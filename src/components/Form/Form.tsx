@@ -4,6 +4,7 @@ import FormComponent from "@rjsf/core";
 import snake from "to-snake-case";
 import { useParams, useSearchParams } from "react-router-dom"
 import useNear from "../../hooks/useNear"
+import useWindowDimensions from '../../hooks/useWindowDimensions'
 import { WithWBRs } from '..'
 
 import css from "./form.module.css"
@@ -108,6 +109,7 @@ function allFilled(formData?: FormData, required?: string[]) {
 
 export function Form() {
   const { near, canCall, config, currentUser, getMethod, getDefinition } = useNear()
+  const { isMobile } = useWindowDimensions()
   const { contract, method } = useParams<{ contract: string, method: string }>()
   const def = method ? getDefinition(method) : undefined
   const [searchParams, setSearchParams] = useSearchParams()
@@ -234,7 +236,20 @@ export function Form() {
     // don't want to auto-submit while filling in form, but do when changing methods
   }, [def]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!method) return null
+  if (!contract) return null
+
+  if (!method) {
+    return (
+      <>
+        <h1>
+          <WithWBRs word={contract} breakOn="." />
+        </h1>
+        <p>
+          Inspect <strong>{contract}</strong> using a schema built with <a href="https://raen.dev/admin">RAEN</a> and stored on <a href="https://near.org">NEAR</a>. Select a method from {isMobile ? 'the menu above' : 'the sidebar'} to get started.
+        </p>
+      </>
+    )
+  }
 
   const hasInputs = def?.contractMethod === 'change' ||
     Object.keys(def?.properties?.args?.properties ?? {}).length > 0
