@@ -1,4 +1,4 @@
-import equal from 'fast-deep-equal'
+import equal from 'lodash.isequal'
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import {
