@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import snake from "to-snake-case";
 import { Link } from "react-router-dom";
-import { Root as Tooltip, Trigger, Content, Arrow } from '@radix-ui/react-tooltip';
+import { Root as Tooltip, Portal, Trigger, Content, Arrow } from '@radix-ui/react-tooltip';
 import useNear from '../../hooks/useNear';
 import css from './methods.module.css';
 import { Crown } from './Crown'
@@ -28,16 +28,18 @@ const Tip: React.FC<{ method: string }> = ({ method }) => {
           <Crown />
         </span>
       </Trigger>
-      <Content className="tooltip">
-        <div className={css.restrictedTo}>
-          <span>Restricted to:</span>
-          <Crown fill="var(--gray-6)" />
-        </div>
-        <div>
-          {restrictedTo}
-        </div>
-        <Arrow />
-      </Content>
+      <Portal>
+        <Content className="tooltip">
+          <div className={css.restrictedTo}>
+            <span>Restricted to:</span>
+            <Crown fill="var(--gray-6)" />
+          </div>
+          <div>
+            {restrictedTo}
+          </div>
+          <Arrow />
+        </Content>
+      </Portal>
     </Tooltip>
   )
 };
