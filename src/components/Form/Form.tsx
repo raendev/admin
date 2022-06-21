@@ -308,7 +308,7 @@ export function Form() {
               Live Validation
             </label>
           )}
-          <div style={{ marginTop: 'var(--spacing-l)' }}>
+          <div style={{ margin: 'var(--spacing-l) 0' }}>
             {loading
               ? <div className="loader" />
               : <Display result={result} error={error} tx={tx} logs={logs} />
