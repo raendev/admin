@@ -84,6 +84,12 @@ export function init(contract: string): ContractInterface {
    * @returns `wallet.account()` if authenticated against given `contract`
    */
   async function getCurrentUser(contract: string): Promise<undefined | naj.ConnectedWalletAccount> {
+    // Use `setTimeout` with no wait time to give the current process time to
+    // finish, and execute the rest of this function at the next tick. This
+    // gives NAJ time to finish setting the new key to localStorage after a
+    // round-trip to NEAR Wallet.
+    await new Promise<void>(res => setTimeout(() => res()))
+
     if (!wallet.getAccountId()) return undefined
 
     const currentUser = wallet.account()
