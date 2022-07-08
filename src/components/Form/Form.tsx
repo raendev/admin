@@ -188,6 +188,7 @@ export function Form() {
 
   const onSubmit = useMemo(() => async ({ formData }: WrappedFormData) => {
     setLoading(true)
+    setResult(undefined)
     setError(undefined)
     setTx(undefined)
     setLogs(undefined)
