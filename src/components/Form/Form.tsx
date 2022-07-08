@@ -30,12 +30,17 @@ function hasSuccessValue(obj: {}): obj is { SuccessValue: string } {
   return 'SuccessValue' in obj
 }
 
+function prettifyJsonString(input: string): string {
+  try {
+    return JSON.stringify(JSON.parse(input), null, 2)
+  } catch {
+    return input
+  }
+}
 function parseResult(result: string): string {
   if (!result) return result
-  return JSON.stringify(
-    JSON.parse(Buffer.from(result, 'base64').toString()),
-    null,
-    2
+  return prettifyJsonString(
+    Buffer.from(result, 'base64').toString()
   )
 }
 
@@ -188,6 +193,7 @@ export function Form() {
 
   const onSubmit = useMemo(() => async ({ formData }: WrappedFormData) => {
     setLoading(true)
+    setResult(undefined)
     setError(undefined)
     setTx(undefined)
     setLogs(undefined)
@@ -229,7 +235,7 @@ export function Form() {
     } catch (e: unknown) {
       setError(
         e instanceof Error
-          ? JSON.stringify(e.message, null, 2)
+          ? prettifyJsonString(e.message)
           : JSON.stringify(e)
       )
     } finally {
