@@ -27,7 +27,10 @@ export function Home() {
         </div>
       </div>
       <div className={`container ${css.body}`}>
-        <h2>Try it</h2>
+        <div className="responsiveVideoWrap">
+          <iframe src="https://www.youtube-nocookie.com/embed/m5dOyaKp18Y" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+        </div>
+        <h2 style={{paddingTop: 'var(--spacing-l)'}}>Try it</h2>
         <p>Poke at one of these examples:</p>
         <ul>
           {featuredContracts.map(([contract, description]) => (
