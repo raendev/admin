@@ -248,10 +248,15 @@ legend#root_options__title {
 button,
 .button,
 input,
+textarea,
 select {
   border-radius: var(--br-base);
   font: inherit;
   outline: none;
+}
+
+textarea {
+  border-bottom-right-radius: var(--br-small);
 }
 
 button,
@@ -271,6 +276,7 @@ button[type=submit],
 }
 
 input,
+textarea,
 select {
   background-color: transparent;
   border: 2px solid var(--gray-9);
@@ -278,6 +284,7 @@ select {
 }
 
 input,
+textarea,
 select,
 button,
 .button {
@@ -314,6 +321,7 @@ button[disabled],
 }
 
 input:hover:not(:focus),
+textarea:hover:not(:focus),
 select:hover:not(:focus) {
   background: var(--gray-1);
 }
@@ -321,6 +329,9 @@ select:hover:not(:focus) {
 input:hover,
 input:focus,
 input:active,
+textarea:hover,
+textarea:focus,
+textarea:active,
 select:hover,
 select:focus,
 select:active {
@@ -338,11 +349,13 @@ select {
 }
 
 input.error,
+textarea.error,
 select.error {
   border-color: var(--red);
 }
 
-input::selection {
+input::selection,
+textarea::selection {
   background-color: var(--fg);
   color: var(--bg);
 }

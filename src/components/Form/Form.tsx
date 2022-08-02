@@ -1,13 +1,18 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { JsonRpcProvider, FinalExecutionStatus, FinalExecutionStatusBasic } from 'near-api-js/lib/providers';
-import FormComponent from "@rjsf/core";
+import FormComponent, { WidgetProps } from "@rjsf/core";
+// @ts-expect-error untyped boo!
+import TextareaWidget from "@rjsf/core/lib/components/widgets/TextareaWidget";
 import snake from "to-snake-case";
 import { useParams, useSearchParams } from "react-router-dom"
 import useNear from "../../hooks/useNear"
 import useWindowDimensions from '../../hooks/useWindowDimensions'
 import { WithWBRs } from '..'
-
 import css from "./form.module.css"
+
+const Textarea = (props: WidgetProps) => (
+  <TextareaWidget {...props} options={{rows: 1, ...props.options}} />
+)
 
 type Data = Record<string, any>
 
@@ -289,6 +294,7 @@ export function Form() {
           <FormComponent
             key={method /* re-initialize form when method changes */}
             disabled={!!whyForbidden}
+            widgets={{ TextWidget: Textarea }}
             uiSchema={{
               'ui:submitButtonOptions': {
                 norender: !hasInputs,
