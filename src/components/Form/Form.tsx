@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
+import SyntaxHighlighter from 'react-syntax-highlighter'
+import { anOldHope as dark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { JsonRpcProvider, FinalExecutionStatus, FinalExecutionStatusBasic } from 'near-api-js/lib/providers';
 import FormComponent, { WidgetProps } from "@rjsf/core";
 // @ts-expect-error untyped boo!
@@ -81,11 +83,12 @@ const Display: React.FC<React.PropsWithChildren<{
       {Boolean(logs?.length || tx) && (
         <h2>Return value</h2>
       )}
-      <pre className={`${error && css.error} ${css.result}`}>
-        <code>
-          {result ?? error}
-        </code>
-      </pre>
+      <SyntaxHighlighter
+        style={dark}
+        language="json"
+        children={result ?? error ?? "null"}
+        wrapLongLines
+      />
       {(logs && logs.length > 0) && (
         <>
           <h2>Logs</h2>
@@ -292,6 +295,7 @@ export function Form() {
       {schema && (
         <>
           <FormComponent
+            className={css.form}
             key={method /* re-initialize form when method changes */}
             disabled={!!whyForbidden}
             widgets={{ TextWidget: Textarea }}

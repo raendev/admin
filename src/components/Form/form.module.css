@@ -1,8 +1,5 @@
-.result {
-  font-size: 1.1em;
-  min-height: var(--spacing-xl);
-}
-
-.error {
-  background-color: var(--bg-red);
+.form input,
+.form textarea,
+.form select {
+  width: 100%;
 }
