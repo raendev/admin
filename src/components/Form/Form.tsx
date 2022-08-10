@@ -141,7 +141,6 @@ export function Form() {
   const def = method ? getDefinition(method) : undefined
   const [searchParams, setSearchParams] = useSearchParams()
   const formData = decodeData(searchParams)
-  const [liveValidate, setLiveValidate] = useState<boolean>(false)
   const [result, setResult] = useState<string>()
   const [tx, setTx] = useState<string>()
   const [logs, setLogs] = useState<string[]>()
@@ -309,21 +308,11 @@ export function Form() {
                 },
               }
             }}
-            liveValidate={liveValidate}
             schema={schema}
             formData={formData}
             onChange={setFormData}
             onSubmit={onSubmit}
           />
-          {hasInputs && (
-            <label>
-              <input
-                type="checkbox"
-                onChange={e => setLiveValidate(e.target.checked)}
-              />
-              Live Validation
-            </label>
-          )}
           <div style={{ margin: 'var(--spacing-l) 0' }}>
             {loading
               ? <div className="loader" />
