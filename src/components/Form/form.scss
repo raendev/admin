@@ -1,0 +1,21 @@
+.inner-form-wrapper {
+  display: flex;
+  justify-content: center;
+  &.form-and-result {
+    justify-content: space-between;
+  }
+  form,
+  .results-only {
+    width: 500px;
+  }
+
+  .input-and-results {
+    margin-left: 40px;
+  }
+
+  > div {
+    h1 {
+      margin-top: 30px;
+    }
+  }
+}

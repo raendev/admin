@@ -11,6 +11,7 @@ import useNear from "../../hooks/useNear"
 import useWindowDimensions from '../../hooks/useWindowDimensions'
 import { WithWBRs } from '..'
 import css from "./form.module.css"
+import './form.scss';
 
 const Textarea = (props: WidgetProps) => (
   <TextareaWidget {...props} options={{rows: 1, ...props.options}} />
@@ -284,16 +285,15 @@ export function Form() {
 
   const hasInputs = def?.contractMethod === 'change' ||
     Object.keys(def?.properties?.args?.properties ?? {}).length > 0
-
   return (
     <>
-      <h1 style={{ margin: 0 }}>
+      <h1 style={!result || !hasInputs ? { marginLeft: 'auto', marginRight: 'auto', width: '500px' } : { margin: 0 }}>
         <WithWBRs word={snake(method)} />
       </h1>
       {whyForbidden && <p className="errorHint">Forbidden: {whyForbidden}</p>}
       {schema && (
-        <>
-          <FormComponent
+        <div className={`inner-form-wrapper ${hasInputs && result && 'form-and-result'}`}>
+          {hasInputs && <FormComponent
             className={css.form}
             key={method /* re-initialize form when method changes */}
             disabled={!!whyForbidden}
@@ -312,14 +312,14 @@ export function Form() {
             formData={formData}
             onChange={setFormData}
             onSubmit={onSubmit}
-          />
-          <div style={{ margin: 'var(--spacing-l) 0' }}>
+          />}
+          {result && <div className={`${!hasInputs && 'results-only'} ${hasInputs && result && 'input-and-results'}`}>
             {loading
               ? <div className="loader" />
               : <Display result={result} error={error} tx={tx} logs={logs} />
             }
-          </div>
-        </>
+          </div>}
+        </div>
       )}
     </>
   );

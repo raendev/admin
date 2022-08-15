@@ -1,7 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { Contract, Home } from "./components"
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 import { Provider as TooltipProvider } from '@radix-ui/react-tooltip';
 import "./styles/global.scss"
@@ -13,13 +13,13 @@ const root = createRoot(container!)
 root.render(
   <React.StrictMode>
     <TooltipProvider delayDuration={0}>
-      <HashRouter>
+      <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/:contract" element={<Contract />} />
           <Route path="/:contract/:method" element={<Contract />} />
         </Routes>
-      </HashRouter>
+      </BrowserRouter>
     </TooltipProvider>
   </React.StrictMode>
 );
