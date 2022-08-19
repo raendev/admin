@@ -38,7 +38,8 @@ $red: #fc5b5b;
   --spacing-l: calc(var(--base-spacing) * 3);
   --spacing-xl: calc(var(--base-spacing) * 4);
   --spacing-xxl: calc(var(--base-spacing) * 5);
-  --max-width: calc(80 * var(--spacing-m));
+  --max-width: calc(35 * var(--spacing-m));
+  --max-width-wide: calc(85 * var(--spacing-m));
 
   /* Border Radius */
   --br-base: 10px;
@@ -366,6 +367,9 @@ textarea::selection {
   max-width: var(--max-width);
   padding-left: var(--spacing-l);
   padding-right: var(--spacing-l);
+  &.large {
+    max-width: var(--max-width-wide);
+  }
 }
 
 .loader {

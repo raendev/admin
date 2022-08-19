@@ -272,21 +272,21 @@ export function Form() {
 
   if (!method) {
     return (
-      <>
+      <div className="container">
         <h1 style={{ margin: 0 }}>
           <WithWBRs word={contract} breakOn="." />
         </h1>
         <p>
           Inspect <strong><WithWBRs word={contract} breakOn="." /></strong> using a schema built with <a href="https://raen.dev/admin">RAEN</a> and stored on <a href="https://near.org">NEAR</a>. Select a method from {isMobile ? 'the menu above' : 'the sidebar'} to get started.
         </p>
-      </>
+      </div>
     )
   }
 
   const hasInputs = def?.contractMethod === 'change' ||
     Object.keys(def?.properties?.args?.properties ?? {}).length > 0
   return (
-    <>
+    <div className={`container ${hasInputs && result && 'large'}`}>
       <h1 style={!result || !hasInputs ? { marginLeft: 'auto', marginRight: 'auto', width: '500px' } : { margin: 0 }}>
         <WithWBRs word={snake(method)} />
       </h1>
@@ -321,6 +321,6 @@ export function Form() {
           </div>}
         </div>
       )}
-    </>
+    </div>
   );
 }
