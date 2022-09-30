@@ -367,6 +367,7 @@ textarea::selection {
   max-width: var(--max-width);
   padding-left: var(--spacing-l);
   padding-right: var(--spacing-l);
+  transition: 1s ease all;
   &.large {
     max-width: var(--max-width-wide);
   }

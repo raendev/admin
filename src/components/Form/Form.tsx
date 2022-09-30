@@ -65,7 +65,7 @@ const Display: React.FC<React.PropsWithChildren<{
 
   return (
     <>
-      <h1>{result !== undefined ? "Result" : "Error"}</h1>
+      <h1 className="mt-0">{result !== undefined ? "Result" : "Error"}</h1>
       {tx && (
         <p>
           View full transaction details on{' '}
@@ -287,12 +287,12 @@ export function Form() {
     Object.keys(def?.properties?.args?.properties ?? {}).length > 0
   return (
     <div className={`container ${hasInputs && result && 'large'}`}>
-      <h1 style={!result || !hasInputs ? { marginLeft: 'auto', marginRight: 'auto', width: '500px' } : { margin: 0 }}>
+      <h1>
         <WithWBRs word={snake(method)} />
       </h1>
       {whyForbidden && <p className="errorHint">Forbidden: {whyForbidden}</p>}
       {schema && (
-        <div className={`inner-form-wrapper ${hasInputs && result && 'form-and-result'}`}>
+        <div className={`inner-form-wrapper ${hasInputs && result ? 'form-and-result' : ''}`}>
           {hasInputs && <FormComponent
             className={css.form}
             key={method /* re-initialize form when method changes */}
@@ -313,7 +313,7 @@ export function Form() {
             onChange={setFormData}
             onSubmit={onSubmit}
           />}
-          {result && <div className={`${!hasInputs && 'results-only'} ${hasInputs && result && 'input-and-results'}`}>
+          {result && <div className={`${!hasInputs ? 'results-only' : ''} ${hasInputs && result ? 'input-and-results' : ''}`}>
             {loading
               ? <div className="loader" />
               : <Display result={result} error={error} tx={tx} logs={logs} />

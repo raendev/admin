@@ -3,19 +3,23 @@
   justify-content: center;
   &.form-and-result {
     justify-content: space-between;
-  }
-  form,
-  .results-only {
-    width: 500px;
+    form {
+      width: 45%;
+    }
   }
 
   .input-and-results {
     margin-left: 40px;
+    flex: 1;
+  }
+
+  .results-only {
+    width: 100%;
   }
 
   > div {
     h1 {
-      margin-top: var(--spacing-l);
+      margin-top: 0px;
     }
   }
 }
