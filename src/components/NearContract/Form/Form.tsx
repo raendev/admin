@@ -7,13 +7,13 @@ import FormComponent, { WidgetProps } from "@rjsf/core";
 import TextareaWidget from "@rjsf/core/lib/components/widgets/TextareaWidget";
 import snake from "to-snake-case";
 import { useParams, useSearchParams } from "react-router-dom"
-import useNear from "../../hooks/useNear"
-import useWindowDimensions from '../../hooks/useWindowDimensions'
-import { WithWBRs } from '..'
+import useNear from "../../../hooks/useNear"
+import useWindowDimensions from '../../../hooks/useWindowDimensions'
+import { WithWBRs } from '../..'
 import css from "./form.module.css"
 
 const Textarea = (props: WidgetProps) => (
-  <TextareaWidget {...props} options={{rows: 1, ...props.options}} />
+  <TextareaWidget {...props} options={{ rows: 1, ...props.options }} />
 )
 
 type Data = Record<string, any>

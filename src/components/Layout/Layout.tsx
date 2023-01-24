@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useParams } from "react-router-dom"
-import { ContractForm, Logo, Login } from '..'
+import { ContractNameForm, Logo, Login } from '..'
 import { Sidebar } from './Sidebar'
 import css from './layout.module.css'
 import useWindowDimensions from '../../hooks/useWindowDimensions'
@@ -63,7 +63,7 @@ export const Layout: React.FC<React.PropsWithChildren<unknown>> = ({ children })
               <Login />
             </div>
           )}
-          <ContractForm />
+          <ContractNameForm />
         </div>
         {isMobile && (
           <div

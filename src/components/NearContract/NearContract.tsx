@@ -2,9 +2,10 @@ import * as React from "react";
 import { useParams } from "react-router-dom"
 import { init } from "../../protocols/near"
 import useNear from "../../hooks/useNear"
-import { Form, Layout, NotFound } from ".."
+import { Layout, NotFound } from ".."
+import { Form } from "./Form/Form"
 
-export function Contract() {
+export function NearContract() {
   const { schema } = useNear()
   const { contract } = useParams<{ contract: string }>()
   let errorMessage: string | null = null

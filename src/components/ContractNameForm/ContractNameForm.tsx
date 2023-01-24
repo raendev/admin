@@ -3,7 +3,7 @@ import { init } from "../../protocols/near"
 import { useNavigate, useParams } from "react-router-dom";
 import css from "./form.module.css";
 
-export const ContractForm: React.FC<{ autoFocus?: boolean }> = ({
+export const ContractNameForm: React.FC<{ autoFocus?: boolean }> = ({
   autoFocus = false,
 }) => {
   const { contract } = useParams<{ contract: string }>()

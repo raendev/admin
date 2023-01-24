@@ -1,7 +1,7 @@
 import React from "react"
 import featuredContracts from "./featured-contracts.json"
 import { Logo } from ".."
-import { ContractForm, WithWBRs } from ".."
+import { ContractNameForm, WithWBRs } from ".."
 import { Link } from "react-router-dom";
 import css from "./home.module.css"
 import Markdown from "react-markdown"
@@ -18,7 +18,7 @@ export function Home() {
           <p className={css.lead}>
             Enter a contract name below (i.e. <Link to="/counter.raendev.testnet">counter.raendev.testnet</Link>)
           </p>
-          <ContractForm autoFocus />
+          <ContractNameForm autoFocus />
         </div>
         <div className={css.wave}>
           <svg width="100%" viewBox="0 0 1440 72" fill="none">
@@ -30,7 +30,7 @@ export function Home() {
         <div className="responsiveVideoWrap">
           <iframe src="https://www.youtube-nocookie.com/embed/m5dOyaKp18Y" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
         </div>
-        <h2 style={{paddingTop: 'var(--spacing-l)'}}>Try it</h2>
+        <h2 style={{ paddingTop: 'var(--spacing-l)' }}>Try it</h2>
         <p>Poke at one of these examples:</p>
         <ul>
           {featuredContracts.map(([contract, description]) => (
