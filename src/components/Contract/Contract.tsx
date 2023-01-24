@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useParams } from "react-router-dom"
-import { init } from "../../near"
+import { init } from "../../protocols/near"
 import useNear from "../../hooks/useNear"
 import { Form, Layout, NotFound } from ".."
 

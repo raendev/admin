@@ -3,7 +3,7 @@ import { init } from "."
 import { readCustomSection } from "wasm-walrus-tools"
 import { ContractCodeView } from "near-api-js/lib/providers/provider"
 import { JSONSchema7 } from "json-schema"
-import * as localStorage from '../utils/localStorage'
+import * as localStorage from '../../utils/localStorage'
 
 const fetchSchemaCache: Record<string, Promise<JSONSchema7>> = {}
 

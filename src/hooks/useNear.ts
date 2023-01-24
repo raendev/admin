@@ -7,7 +7,7 @@ import {
   getSchema,
   getSchemaCached,
   SchemaInterface,
-} from "../near"
+} from "../protocols/near"
 
 type ContractName = string
 

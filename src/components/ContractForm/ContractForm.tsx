@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { init } from "../../near"
+import { init } from "../../protocols/near"
 import { useNavigate, useParams } from "react-router-dom";
 import css from "./form.module.css";
 
