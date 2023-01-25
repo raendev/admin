@@ -1,5 +1,7 @@
 import { Layout } from ".."
 
 export function CosmWasmContract() {
-  return <Layout><h1>CosmWasmContract</h1></Layout>
+  return <Layout showLogin={false}>
+    <h1>CosmWasmContract</h1>
+  </Layout>
 }
