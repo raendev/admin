@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from "react-router-dom"
-import { Login, Logo, Methods } from '..'
+import { NearLogin, Logo, Methods } from '..'
 import css from './sidebar.module.css'
 import useWindowDimensions from '../../hooks/useWindowDimensions'
 
@@ -15,7 +15,7 @@ export const Sidebar: React.FC<React.PropsWithChildren<unknown>> = () => {
               <Logo padding="var(--spacing-xs) 0 var(--spacing-s)" />
             </Link>
           </div>
-          <Login />
+          <NearLogin />
         </div>
       )}
       <Methods />
