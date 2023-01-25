@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { NearContract, Home } from "./components"
+import { CosmWasmContract, NearContract, Home } from "./components"
 import { HashRouter, Routes, Route } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 import { Provider as TooltipProvider } from '@radix-ui/react-tooltip';
@@ -16,6 +16,7 @@ root.render(
       <HashRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/cw" element={<CosmWasmContract />} />
           <Route path="/:contract" element={<NearContract />} />
           <Route path="/:contract/:method" element={<NearContract />} />
         </Routes>
