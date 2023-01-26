@@ -11,6 +11,7 @@ import useNear from "../../hooks/useNear"
 import useWindowDimensions from '../../hooks/useWindowDimensions'
 import { WithWBRs } from '..'
 import css from "./form.module.css"
+import './form.scss';
 
 const Textarea = (props: WidgetProps) => (
   <TextareaWidget {...props} options={{rows: 1, ...props.options}} />
@@ -64,7 +65,7 @@ const Display: React.FC<React.PropsWithChildren<{
 
   return (
     <>
-      <h1>{result !== undefined ? "Result" : "Error"}</h1>
+      <h1 className="mt-0">{result !== undefined ? "Result" : "Error"}</h1>
       {tx && (
         <p>
           View full transaction details on{' '}
@@ -271,29 +272,28 @@ export function Form() {
 
   if (!method) {
     return (
-      <>
+      <div className="container">
         <h1 style={{ margin: 0 }}>
           <WithWBRs word={contract} breakOn="." />
         </h1>
         <p>
           Inspect <strong><WithWBRs word={contract} breakOn="." /></strong> using a schema built with <a href="https://raen.dev/admin">RAEN</a> and stored on <a href="https://near.org">NEAR</a>. Select a method from {isMobile ? 'the menu above' : 'the sidebar'} to get started.
         </p>
-      </>
+      </div>
     )
   }
 
   const hasInputs = def?.contractMethod === 'change' ||
     Object.keys(def?.properties?.args?.properties ?? {}).length > 0
-
   return (
-    <>
-      <h1 style={{ margin: 0 }}>
+    <div className={`container ${hasInputs && result && 'large'}`}>
+      <h1>
         <WithWBRs word={snake(method)} />
       </h1>
       {whyForbidden && <p className="errorHint">Forbidden: {whyForbidden}</p>}
       {schema && (
-        <>
-          <FormComponent
+        <div className={`inner-form-wrapper ${hasInputs && result ? 'form-and-result' : ''}`}>
+          {hasInputs && <FormComponent
             className={css.form}
             key={method /* re-initialize form when method changes */}
             disabled={!!whyForbidden}
@@ -312,15 +312,15 @@ export function Form() {
             formData={formData}
             onChange={setFormData}
             onSubmit={onSubmit}
-          />
-          <div style={{ margin: 'var(--spacing-l) 0' }}>
+          />}
+          {result && <div className={`${!hasInputs ? 'results-only' : ''} ${hasInputs && result ? 'input-and-results' : ''}`}>
             {loading
               ? <div className="loader" />
               : <Display result={result} error={error} tx={tx} logs={logs} />
             }
-          </div>
-        </>
+          </div>}
+        </div>
       )}
-    </>
+    </div>
   );
 }

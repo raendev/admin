@@ -77,7 +77,6 @@ export const Layout: React.FC<React.PropsWithChildren<unknown>> = ({ children })
           </div>
         )}
         <div
-          className="container"
           style={{ marginTop: 'var(--spacing-l)' }}
           id="mainContent" // referenced by links in `Methods/Method.tsx`
           aria-live="polite"
