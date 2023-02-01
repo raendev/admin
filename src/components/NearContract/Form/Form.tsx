@@ -2,30 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { anOldHope as dark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { JsonRpcProvider, FinalExecutionStatus, FinalExecutionStatusBasic } from 'near-api-js/lib/providers';
-import FormComponent, { WidgetProps } from "@rjsf/core";
-// @ts-expect-error untyped boo!
-import TextareaWidget from "@rjsf/core/lib/components/widgets/TextareaWidget";
 import snake from "to-snake-case";
 import { useParams, useSearchParams } from "react-router-dom"
 import useNear from "../../../hooks/useNear"
 import useWindowDimensions from '../../../hooks/useWindowDimensions'
-import { WithWBRs } from '../..'
-import css from "./form.module.css"
-
-const Textarea = (props: WidgetProps) => (
-  <TextareaWidget {...props} options={{ rows: 1, ...props.options }} />
-)
-
-type Data = Record<string, any>
-
-type FormData = {
-  args: Data
-  options?: Data
-}
-
-type WrappedFormData = {
-  formData?: FormData
-}
+import { WithWBRs, JsonSchemaForm, JsonSchemaFormData, JsonSchemaFormDataWrapped } from '../..'
 
 function isBasic(status: FinalExecutionStatusBasic | FinalExecutionStatus): status is FinalExecutionStatusBasic {
   return status === 'NotStarted' ||
@@ -103,53 +84,20 @@ const Display: React.FC<React.PropsWithChildren<{
   )
 }
 
-function encodeData(formData: FormData): { data: string } {
-  const data = encodeURIComponent(JSON.stringify(formData))
-  return { data }
-}
-
-const decodeDataCache: [string | undefined, FormData | undefined] = [undefined, undefined]
-
-/**
- * Parse URL search params for `data` param and decode it using `decodeURIComponent` and `JSON.parse`.
- * @param searchParams URLSearchParams object from `useSearchParams` from `react-router-dom`
- * @returns value of decoded `data` param with exact same object identity as long as param has not changed. This allows using it in React effect dependencies without infinite loops.
- */
-function decodeData(searchParams: URLSearchParams): undefined | FormData {
-  const entries = Object.fromEntries(searchParams.entries())
-  const { data } = entries ?? '{}' as { data?: string }
-  if (!data) return undefined
-  if (decodeDataCache[0] === data) return decodeDataCache[1]
-  decodeDataCache[0] = data
-  decodeDataCache[1] = JSON.parse(decodeURIComponent(data))
-  return decodeDataCache[1]
-}
-
-function allFilled(formData?: FormData, required?: string[]) {
-  if (!required) return true
-  if (!formData) return false
-  return required.reduce(
-    (acc, field) => acc && ![undefined, null, ''].includes(formData.args[field]),
-    true
-  )
-}
-
 export function Form() {
   const { near, canCall, config, currentUser, getMethod, getDefinition } = useNear()
   const { isMobile } = useWindowDimensions()
   const { contract, method } = useParams<{ contract: string, method: string }>()
   const def = method ? getDefinition(method) : undefined
-  const [searchParams, setSearchParams] = useSearchParams()
-  const formData = decodeData(searchParams)
   const [result, setResult] = useState<string>()
   const [tx, setTx] = useState<string>()
   const [logs, setLogs] = useState<string[]>()
-  const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<any>()
   const [whyForbidden, setWhyForbidden] = useState<string>()
   const schema = method && getMethod(method)?.schema
   const nonReactParams = window.location.search
 
+  // if redirected back to this page from NEAR Wallet confirmation, check results
   useEffect(() => {
     (async () => {
       const user = await currentUser
@@ -172,6 +120,7 @@ export function Form() {
     })()
   }, [config, currentUser, nonReactParams])
 
+  // check if current user is allowed to call current method
   useEffect(() => {
     if (!method) {
       setWhyForbidden(undefined)
@@ -183,13 +132,6 @@ export function Form() {
     }
   }, [canCall, method, currentUser]);
 
-  const setFormData = useMemo(() => ({ formData: newFormData }: WrappedFormData) => {
-    setSearchParams(
-      newFormData ? encodeData(newFormData) : '',
-      { replace: true }
-    )
-  }, [setSearchParams])
-
   // reset result and error when URL changes
   useEffect(() => {
     setResult(undefined)
@@ -198,8 +140,7 @@ export function Form() {
     setLogs(undefined)
   }, [contract, method]);
 
-  const onSubmit = useMemo(() => async ({ formData }: WrappedFormData) => {
-    setLoading(true)
+  const onSubmit = useMemo(() => async ({ formData }: JsonSchemaFormDataWrapped) => {
     setResult(undefined)
     setError(undefined)
     setTx(undefined)
@@ -245,8 +186,6 @@ export function Form() {
           ? prettifyJsonString(e.message)
           : JSON.stringify(e)
       )
-    } finally {
-      setLoading(false)
     }
   }, [near, contract, getDefinition, method, currentUser])
 
@@ -257,27 +196,24 @@ export function Form() {
     return () => { document.title = mainTitle }
   }, [contract, method])
 
-  // at first load, auto-submit if required arguments are fill in
-  useEffect(() => {
-    if (!def) return
-    if (def.contractMethod === 'view' && allFilled(formData, def.properties?.args?.required)) {
-      setTimeout(() => onSubmit({ formData }), 100)
-    }
-    // purposely only re-check this when method changes or when schema fetch completes;
-    // don't want to auto-submit while filling in form, but do when changing methods
-  }, [def]) // eslint-disable-line react-hooks/exhaustive-deps
-
   if (!contract) return null
 
-  if (!method) {
+  if (!method || !schema) {
     return (
       <>
         <h1 style={{ margin: 0 }}>
           <WithWBRs word={contract} breakOn="." />
         </h1>
-        <p>
-          Inspect <strong><WithWBRs word={contract} breakOn="." /></strong> using a schema built with <a href="https://raen.dev/admin">RAEN</a> and stored on <a href="https://near.org">NEAR</a>. Select a method from {isMobile ? 'the menu above' : 'the sidebar'} to get started.
-        </p>
+        {!method && (
+          <p>
+            Inspect <strong><WithWBRs word={contract} breakOn="." /></strong> using a schema built with <a href="https://raen.dev/admin">RAEN</a> and stored on <a href="https://near.org">NEAR</a>. Select a method from {isMobile ? 'the menu above' : 'the sidebar'} to get started.
+          </p>
+        )}
+        {!schema && (
+          <p>
+            Cannot load schema for <strong><WithWBRs word={method ?? ''} /></strong> 🤔
+          </p>
+        )}
       </>
     )
   }
@@ -286,41 +222,16 @@ export function Form() {
     Object.keys(def?.properties?.args?.properties ?? {}).length > 0
 
   return (
-    <>
-      <h1 style={{ margin: 0 }}>
-        <WithWBRs word={snake(method)} />
-      </h1>
-      {whyForbidden && <p className="errorHint">Forbidden: {whyForbidden}</p>}
-      {schema && (
-        <>
-          <FormComponent
-            className={css.form}
-            key={method /* re-initialize form when method changes */}
-            disabled={!!whyForbidden}
-            widgets={{ TextWidget: Textarea }}
-            uiSchema={{
-              'ui:submitButtonOptions': {
-                norender: !hasInputs,
-                submitText: 'Submit',
-                props: {
-                  disabled: !!whyForbidden,
-                  title: whyForbidden,
-                },
-              }
-            }}
-            schema={schema}
-            formData={formData}
-            onChange={setFormData}
-            onSubmit={onSubmit}
-          />
-          <div style={{ margin: 'var(--spacing-l) 0' }}>
-            {loading
-              ? <div className="loader" />
-              : <Display result={result} error={error} tx={tx} logs={logs} />
-            }
-          </div>
-        </>
-      )}
-    </>
+    <JsonSchemaForm
+      title={snake(method)}
+      whyForbidden={whyForbidden}
+      hideSubmitButton={!hasInputs}
+      schema={schema}
+      onSubmit={onSubmit}
+      autoSubmit={def?.contractMethod === 'view'}
+      requiredFields={def?.properties?.args?.required}
+    >
+      <Display result={result} error={error} tx={tx} logs={logs} />
+    </JsonSchemaForm>
   );
 }
