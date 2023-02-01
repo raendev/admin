@@ -3,10 +3,10 @@ import SyntaxHighlighter from 'react-syntax-highlighter'
 import { anOldHope as dark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { JsonRpcProvider, FinalExecutionStatus, FinalExecutionStatusBasic } from 'near-api-js/lib/providers';
 import snake from "to-snake-case";
-import { useParams, useSearchParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import useNear from "../../../hooks/useNear"
 import useWindowDimensions from '../../../hooks/useWindowDimensions'
-import { WithWBRs, JsonSchemaForm, JsonSchemaFormData, JsonSchemaFormDataWrapped } from '../..'
+import { WithWBRs, JsonSchemaForm, JsonSchemaFormDataWrapped } from '../..'
 
 function isBasic(status: FinalExecutionStatusBasic | FinalExecutionStatus): status is FinalExecutionStatusBasic {
   return status === 'NotStarted' ||
