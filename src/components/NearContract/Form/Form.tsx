@@ -94,7 +94,7 @@ export function Form() {
   const [logs, setLogs] = useState<string[]>()
   const [error, setError] = useState<any>()
   const [whyForbidden, setWhyForbidden] = useState<string>()
-  const schema = method && getMethod(method)?.schema
+  const schema = getMethod(method)
   const nonReactParams = window.location.search
 
   // if redirected back to this page from NEAR Wallet confirmation, check results
@@ -211,7 +211,7 @@ export function Form() {
         )}
         {!schema && (
           <p>
-            Cannot load schema for <strong><WithWBRs word={method ?? ''} /></strong> 🤔
+            Unknown method <strong><WithWBRs word={snake(method!) ?? ''} /></strong> 🤔
           </p>
         )}
       </>

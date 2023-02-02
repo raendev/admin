@@ -3,16 +3,11 @@ import useNear from '../../hooks/useNear';
 import { Section } from './Section';
 
 export const Methods = () => {
-  const { changeMethods, viewMethods } = useNear()
+  const { methods } = useNear()
 
-  return (
-    <>
-      {viewMethods.length > 0 && (
-        <Section heading="View Methods" methods={viewMethods} />
-      )}
-      {changeMethods.length > 0 && (
-        <Section heading="Change Methods" methods={changeMethods} />
-      )}
-    </>
-  )
+  return <>{
+    methods.map(({ label, methods }) => (
+      <Section heading={label} methods={methods} />
+    ))
+  }</>
 }

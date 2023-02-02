@@ -2,6 +2,7 @@ import equal from 'fast-deep-equal'
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import {
+  ContractMethod,
   ContractInterface,
   init,
   getSchema,
@@ -19,8 +20,7 @@ const stub = {
   signIn: () => { },
   signOut: () => { },
   schema: undefined,
-  changeMethods: [] as string[],
-  viewMethods: [] as string[],
+  methods: [] as ContractMethod[],
   getMethod: () => undefined,
   getDefinition: () => undefined,
   canCall: () => Promise.resolve([true, undefined] as const),

@@ -79,8 +79,6 @@ async function fetchJsonAddressOrData(contract: string, near: naj.Near): Promise
   return Buffer.from(decompressedData).toString("utf8");
 }
 
-export type Schema = { schema: { $ref: string } & JSONSchema7 }
-
 function hasContractMethodProperty(obj: {}): obj is { contractMethod: "change" | "view" } {
   return 'contractMethod' in obj
 }
@@ -111,11 +109,15 @@ type MethodDefinition = {
   type?: string
 }
 
+export interface ContractMethod {
+  label: string
+  methods: string[]
+}
+
 export interface SchemaInterface {
   schema: JSONSchema7
-  changeMethods: string[]
-  viewMethods: string[]
-  getMethod: (methodName: string) => Schema | undefined
+  methods: ContractMethod[],
+  getMethod: (methodName: string | undefined) => JSONSchema7 | undefined
   getDefinition: (methodName: string) => MethodDefinition | undefined
   /**
    * Check if given method can be called by an account.
@@ -190,14 +192,28 @@ function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface 
     hasContractMethod(m, "view")
   ) as string[]
 
-  function getMethod(m?: string | null): Schema | undefined {
+  const methods: ContractMethod[] = []
+
+  if (viewMethods.length) {
+    methods.push({
+      label: "View Methods",
+      methods: viewMethods,
+    })
+  }
+
+  if (changeMethods.length) {
+    methods.push({
+      label: "Change Methods",
+      methods: changeMethods,
+    })
+  }
+
+  function getMethod(m?: string | undefined): JSONSchema7 | undefined {
     if (!m) return undefined
     if (!hasContractMethod(m)) return undefined
     return {
-      schema: {
-        $ref: `#/definitions/${m}`,
-        ...schema,
-      }
+      $ref: `#/definitions/${m}`,
+      ...schema,
     }
   }
 
@@ -275,8 +291,7 @@ function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface 
 
   return {
     schema,
-    viewMethods,
-    changeMethods,
+    methods,
     getMethod,
     getDefinition,
     canCall,

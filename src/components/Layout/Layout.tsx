@@ -21,6 +21,7 @@ export const Layout: React.FC<React.PropsWithChildren<{
     const [open, setOpenRaw] = useState(false)
     const [displaySidebar, setDisplaySidebar] = useState(false)
 
+    // only close menu after short delay to allow CSS animation to complete
     function setOpen(newOpen: boolean) {
       setOpenRaw(newOpen)
       if (newOpen) {
@@ -34,7 +35,7 @@ export const Layout: React.FC<React.PropsWithChildren<{
       }
     }
 
-    // close method when switching between mobile and desktop
+    // close menu when switching between mobile and desktop
     // also close menu after method selected from sidebar
     useEffect(() => {
       setOpen(false)
