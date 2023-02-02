@@ -21,7 +21,6 @@ const stub = {
   schema: undefined,
   changeMethods: [] as string[],
   viewMethods: [] as string[],
-  methods: {},
   getMethod: () => undefined,
   getDefinition: () => undefined,
   canCall: () => Promise.resolve([true, undefined] as const),

@@ -115,7 +115,6 @@ export interface SchemaInterface {
   schema: JSONSchema7
   changeMethods: string[]
   viewMethods: string[]
-  methods: Record<string, Schema>
   getMethod: (methodName: string) => Schema | undefined
   getDefinition: (methodName: string) => MethodDefinition | undefined
   /**
@@ -191,25 +190,15 @@ function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface 
     hasContractMethod(m, "view")
   ) as string[]
 
-  const methods = Object.keys(schema?.definitions ?? {}).filter(
-    m => hasContractMethod(m)
-  ).reduce(
-    (all, methodName) => ({
-      ...all,
-      [methodName]: {
-        schema: {
-          $ref: `#/definitions/${methodName}`,
-          ...schema,
-        }
-      }
-    }),
-    {} as Record<string, Schema>
-  )
-
   function getMethod(m?: string | null): Schema | undefined {
     if (!m) return undefined
     if (!hasContractMethod(m)) return undefined
-    return methods[m]
+    return {
+      schema: {
+        $ref: `#/definitions/${m}`,
+        ...schema,
+      }
+    }
   }
 
   function getDefinition(m?: string): MethodDefinition | undefined {
@@ -288,7 +277,6 @@ function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface 
     schema,
     viewMethods,
     changeMethods,
-    methods,
     getMethod,
     getDefinition,
     canCall,
