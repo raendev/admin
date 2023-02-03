@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useParams } from "../utils"
 import {
   init,
-  ContractMethod,
+  ContractMethodGroup,
   ContractInterface,
   getSchema,
   SchemaInterface,
@@ -13,7 +13,7 @@ type ContractName = string
 const stub: CosmWasmInterface = {
   contract: '',
   schema: {},
-  methods: [] as ContractMethod[],
+  methods: [] as ContractMethodGroup[],
 } as const
 
 type CosmWasmInterface = ContractInterface & SchemaInterface & { stale?: true }

@@ -3,7 +3,7 @@ import SyntaxHighlighter from 'react-syntax-highlighter'
 import { anOldHope as dark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { JsonRpcProvider, FinalExecutionStatus, FinalExecutionStatusBasic } from 'near-api-js/lib/providers';
 import snake from "to-snake-case";
-import { useParams } from "../../../utils"
+import { useParams, prettifyJsonString } from "../../../utils"
 import useNear from "../../../hooks/useNear"
 import useWindowDimensions from '../../../hooks/useWindowDimensions'
 import { WithWBRs, JsonSchemaForm, JsonSchemaFormDataWrapped } from '../..'
@@ -17,14 +17,6 @@ function isBasic(status: FinalExecutionStatusBasic | FinalExecutionStatus): stat
 function hasSuccessValue(obj: {}): obj is { SuccessValue: string } {
   return 'SuccessValue' in obj
 }
-
-function prettifyJsonString(input: string): string {
-  try {
-    return JSON.stringify(JSON.parse(input), null, 2)
-  } catch {
-    return input
-  }
-}
 function parseResult(result: string): string {
   if (!result) return result
   return prettifyJsonString(
@@ -36,16 +28,15 @@ let mainTitle: string
 
 const Display: React.FC<React.PropsWithChildren<{
   result?: string
-  error?: string
   tx?: string
   logs?: string[]
-}>> = ({ result, error, tx, logs }) => {
+}>> = ({ result, tx, logs }) => {
   const { config } = useNear()
-  if (result === undefined && error === undefined) return null
+  if (result === undefined) return null
 
   return (
     <>
-      <h1>{result !== undefined ? "Result" : "Error"}</h1>
+      <h1>Result</h1>
       {tx && (
         <p>
           View full transaction details on{' '}
@@ -61,13 +52,11 @@ const Display: React.FC<React.PropsWithChildren<{
           >nearblocks.io</a>.
         </p>
       )}
-      {Boolean(logs?.length || tx) && (
-        <h2>Return value</h2>
-      )}
+      <h2>Return value</h2>
       <SyntaxHighlighter
         style={dark}
         language="json"
-        children={result ?? error ?? "null"}
+        children={result ?? "null"}
         wrapLongLines
       />
       {(logs && logs.length > 0) && (
@@ -92,7 +81,6 @@ export function Form() {
   const [result, setResult] = useState<string>()
   const [tx, setTx] = useState<string>()
   const [logs, setLogs] = useState<string[]>()
-  const [error, setError] = useState<any>()
   const [whyForbidden, setWhyForbidden] = useState<string>()
   const schema = getMethod(method)
   const nonReactParams = window.location.search
@@ -108,8 +96,8 @@ export function Form() {
       const errMsg = params.get('errorMessage') ?? undefined
       const errCode = params.get('errorCode') ?? undefined
 
-      if (errMsg) setError(decodeURIComponent(errMsg))
-      else if (errCode) setError(decodeURIComponent(errCode))
+      if (errMsg) throw new Error(decodeURIComponent(errMsg))
+      else if (errCode) throw new Error(decodeURIComponent(errCode))
       else if (txHash) {
         const rpc = new JsonRpcProvider(config.nodeUrl)
         const tx = await rpc.txStatus(txHash, user.accountId)
@@ -132,60 +120,50 @@ export function Form() {
     }
   }, [canCall, method, currentUser]);
 
-  // reset result and error when URL changes
+  // reset result when URL changes
   useEffect(() => {
     setResult(undefined)
-    setError(undefined)
     setTx(undefined)
     setLogs(undefined)
   }, [contract, method]);
 
   const onSubmit = useMemo(() => async ({ formData }: JsonSchemaFormDataWrapped) => {
     setResult(undefined)
-    setError(undefined)
     setTx(undefined)
     setLogs(undefined)
     if (!near || !contract || !method) return
-    try {
-      if (getDefinition(method)?.contractMethod === 'view') {
-        const account = await near.account(contract)
-        const res = await account.viewFunction(
-          contract,
-          snake(method),
-          formData?.args
-        )
-        setResult(JSON.stringify(res, null, 2));
-      } else {
-        const user = await currentUser
-        if (!user) throw new Error('Forbidden: must sign in')
-        const res = await user.functionCall({
-          contractId: contract,
-          methodName: snake(method),
-          args: formData?.args ?? {},
-          ...formData?.options ?? {}
-        })
-
-        setTx(res?.transaction_outcome?.id)
-        setLogs(res?.receipts_outcome.map(receipt => receipt.outcome.logs).flat())
-
-        const status = res?.status
-        if (!status) setResult(undefined)
-        else if (isBasic(status)) setResult(status)
-        else if (status.SuccessValue !== undefined) {
-          setResult(parseResult(status.SuccessValue))
-        } else if (status.Failure) {
-          setResult(`${status.Failure.error_type}: ${status.Failure.error_message}`)
-        } else {
-          console.error(new Error('RPC response contained no status!'))
-          setResult(undefined)
-        }
-      }
-    } catch (e: unknown) {
-      setError(
-        e instanceof Error
-          ? prettifyJsonString(e.message)
-          : JSON.stringify(e)
+    if (getDefinition(method)?.contractMethod === 'view') {
+      const account = await near.account(contract)
+      const res = await account.viewFunction(
+        contract,
+        snake(method),
+        formData?.args
       )
+      setResult(JSON.stringify(res, null, 2));
+    } else {
+      const user = await currentUser
+      if (!user) throw new Error('Forbidden: must sign in')
+      const res = await user.functionCall({
+        contractId: contract,
+        methodName: snake(method),
+        args: formData?.args ?? {},
+        ...formData?.options ?? {}
+      })
+
+      setTx(res?.transaction_outcome?.id)
+      setLogs(res?.receipts_outcome.map(receipt => receipt.outcome.logs).flat())
+
+      const status = res?.status
+      if (!status) setResult(undefined)
+      else if (isBasic(status)) setResult(status)
+      else if (status.SuccessValue !== undefined) {
+        setResult(parseResult(status.SuccessValue))
+      } else if (status.Failure) {
+        setResult(`${status.Failure.error_type}: ${status.Failure.error_message}`)
+      } else {
+        console.error(new Error('RPC response contained no status!'))
+        setResult(undefined)
+      }
     }
   }, [near, contract, getDefinition, method, currentUser])
 
@@ -230,7 +208,7 @@ export function Form() {
       autoSubmit={def?.contractMethod === 'view'}
       requiredFields={def?.properties?.args?.required}
     >
-      <Display result={result} error={error} tx={tx} logs={logs} />
+      <Display result={result} tx={tx} logs={logs} />
     </JsonSchemaForm>
   );
 }

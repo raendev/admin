@@ -2,7 +2,7 @@ import equal from 'fast-deep-equal'
 import { useEffect, useState } from "react"
 import { useParams } from "../utils"
 import {
-  ContractMethod,
+  ContractMethodGroup,
   ContractInterface,
   init,
   getSchema,
@@ -20,7 +20,7 @@ const stub = {
   signIn: () => { },
   signOut: () => { },
   schema: undefined,
-  methods: [] as ContractMethod[],
+  methods: [] as ContractMethodGroup[],
   getMethod: () => undefined,
   getDefinition: () => undefined,
   canCall: () => Promise.resolve([true, undefined] as const),

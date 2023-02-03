@@ -60,8 +60,8 @@ export function init(contract: string): ContractInterface {
   const config = /near$/.test(contract)
     ? mainnetConfig
     : /testnet$/.test(contract) || /dev-[0-9]+-[0-9]+/.test(contract)
-    ? testnetConfig
-    : undefined
+      ? testnetConfig
+      : undefined
 
   if (!config) throw new UnknownNetworkError(contract)
 

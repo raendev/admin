@@ -1,11 +1,14 @@
 import FormComponent, { WidgetProps } from "@rjsf/core";
 import { useEffect, useMemo, useState } from "react"
+import SyntaxHighlighter from 'react-syntax-highlighter'
+import { anOldHope as dark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { useSearchParams } from "react-router-dom"
 // @ts-expect-error untyped boo!
 import TextareaWidget from "@rjsf/core/lib/components/widgets/TextareaWidget";
 import css from "./form.module.css"
 import { JSONSchema7 } from "json-schema"
 import { WithWBRs } from '..'
+import { prettifyJsonString } from "../../utils"
 
 const Textarea = (props: WidgetProps) => (
   <TextareaWidget {...props} options={{ rows: 1, ...props.options }} />
@@ -74,65 +77,83 @@ export const JsonSchemaForm: React.FC<React.PropsWithChildren<{
   autoSubmit = false,
   requiredFields = [],
 }) => {
-  const [loading, setLoading] = useState<boolean>(false)
-  const [searchParams, setSearchParams] = useSearchParams()
-  const formData = decodeData(searchParams)
+    const [loading, setLoading] = useState<boolean>(false)
+    const [error, setError] = useState<any>()
+    const [searchParams, setSearchParams] = useSearchParams()
+    const formData = decodeData(searchParams)
 
-  const setFormData = useMemo(() => ({ formData: newFormData }: JsonSchemaFormDataWrapped) => {
-    setSearchParams(
-      newFormData ? encodeData(newFormData) : '',
-      { replace: true }
+    const setFormData = useMemo(() => ({ formData: newFormData }: JsonSchemaFormDataWrapped) => {
+      setSearchParams(
+        newFormData ? encodeData(newFormData) : '',
+        { replace: true }
+      )
+    }, [setSearchParams])
+
+    const onSubmitWrapped = useMemo(() => async ({ formData }: JsonSchemaFormDataWrapped) => {
+      setLoading(true)
+      setError(undefined)
+      try {
+        await onSubmit({ formData })
+      } catch (e: unknown) {
+        setError(
+          e instanceof Error
+            ? prettifyJsonString(e.message)
+            : JSON.stringify(e)
+        )
+      } finally {
+        setLoading(false)
+      }
+    }, [onSubmit])
+
+    // at first load, auto-submit if required arguments are fill in
+    useEffect(() => {
+      if (autoSubmit && allFilled(formData, requiredFields)) {
+        setTimeout(() => onSubmit({ formData }), 100)
+      }
+      // purposely only re-check this when method changes or when schema fetch completes;
+      // don't want to auto-submit while filling in form, but do when changing methods
+    }, [title]) // eslint-disable-line react-hooks/exhaustive-deps
+
+
+    return (
+      <>
+        <h1 style={{ margin: 0 }}>
+          <WithWBRs word={title} />
+        </h1>
+        {whyForbidden && <p className="errorHint">Forbidden: {whyForbidden}</p>}
+        <FormComponent
+          key={title /* rerender when title/method changes */}
+          className={css.form}
+          disabled={!!whyForbidden}
+          widgets={{ TextWidget: Textarea }}
+          uiSchema={{
+            'ui:submitButtonOptions': {
+              norender: hideSubmitButton,
+              submitText: 'Submit',
+              props: {
+                disabled: !!whyForbidden,
+                title: whyForbidden,
+              },
+            }
+          }}
+          schema={schema}
+          formData={formData}
+          onChange={setFormData}
+          onSubmit={onSubmitWrapped}
+        />
+        <div style={{ margin: 'var(--spacing-l) 0' }}>
+          {loading ? <div className="loader" /> : error ? (
+            <>
+              <h1>Error:</h1>
+              <SyntaxHighlighter
+                style={dark}
+                language="json"
+                children={error}
+                wrapLongLines
+              />
+            </>
+          ) : children}
+        </div>
+      </>
     )
-  }, [setSearchParams])
-
-  const onSubmitWrapped = useMemo(() => async ({ formData }: JsonSchemaFormDataWrapped) => {
-    setLoading(true)
-    try {
-      await onSubmit({ formData })
-    } finally {
-      setLoading(false)
-    }
-  }, [onSubmit])
-
-  // at first load, auto-submit if required arguments are fill in
-  useEffect(() => {
-    if (autoSubmit && allFilled(formData, requiredFields)) {
-      setTimeout(() => onSubmit({ formData }), 100)
-    }
-    // purposely only re-check this when method changes or when schema fetch completes;
-    // don't want to auto-submit while filling in form, but do when changing methods
-  }, [title]) // eslint-disable-line react-hooks/exhaustive-deps
-
-
-  return (
-    <>
-      <h1 style={{ margin: 0 }}>
-        <WithWBRs word={title} />
-      </h1>
-      {whyForbidden && <p className="errorHint">Forbidden: {whyForbidden}</p>}
-      <FormComponent
-        key={title /* rerender when title/method changes */}
-        className={css.form}
-        disabled={!!whyForbidden}
-        widgets={{ TextWidget: Textarea }}
-        uiSchema={{
-          'ui:submitButtonOptions': {
-            norender: hideSubmitButton,
-            submitText: 'Submit',
-            props: {
-              disabled: !!whyForbidden,
-              title: whyForbidden,
-            },
-          }
-        }}
-        schema={schema}
-        formData={formData}
-        onChange={setFormData}
-        onSubmit={onSubmitWrapped}
-      />
-      <div style={{ margin: 'var(--spacing-l) 0' }}>
-        {loading ? <div className="loader" /> : children}
-      </div>
-    </>
-  )
-}
+  }

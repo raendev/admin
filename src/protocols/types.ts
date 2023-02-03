@@ -6,7 +6,12 @@ export type JSONSchema =
   Omit<JSONSchemaType<unknown>, 'type'> |
   Omit<JSONSchemaType<unknown>, 'oneOf'>
 
-export interface ContractMethod {
-  label: string
-  methods?: string[]
+export type ContractMethod = {
+  title: string
+  link: string
+}
+
+export interface ContractMethodGroup {
+  heading: string
+  methods: ContractMethod[]
 }

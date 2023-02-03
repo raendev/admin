@@ -11,8 +11,8 @@ export const Methods = () => {
   const methods = nearMethods.concat(cwMethods)
 
   return <>{
-    methods.map(({ label, methods }) => (
-      <Section key={label} heading={label} methods={methods} />
+    methods.map(contractMethod => (
+      <Section key={contractMethod.heading} {...contractMethod} />
     ))
   }</>
 }

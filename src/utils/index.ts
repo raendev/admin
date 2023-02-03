@@ -9,3 +9,11 @@ export type Params = {
 export function useParams(): Readonly<Partial<Params>> {
   return useParamsGeneric<Params>()
 }
+
+export function prettifyJsonString(input: string): string {
+  try {
+    return JSON.stringify(JSON.parse(input), null, 2)
+  } catch {
+    return input
+  }
+}

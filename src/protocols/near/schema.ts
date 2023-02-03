@@ -3,7 +3,7 @@ import { init } from "."
 import { readCustomSection } from "wasm-walrus-tools"
 import { ContractCodeView } from "near-api-js/lib/providers/provider"
 import * as localStorage from '../../utils/localStorage'
-import { ContractMethod, JSONSchema } from '../types'
+import { ContractMethodGroup, JSONSchema } from '../types'
 
 const fetchSchemaCache: Record<string, Promise<JSONSchema>> = {}
 
@@ -111,7 +111,7 @@ type MethodDefinition = {
 
 export interface SchemaInterface {
   schema: JSONSchema
-  methods: ContractMethod[],
+  methods: ContractMethodGroup[],
   getMethod: (methodName: string | undefined) => JSONSchema | undefined
   getDefinition: (methodName: string) => MethodDefinition | undefined
   /**
@@ -187,19 +187,25 @@ function buildInterface(contract: string, schema: JSONSchema): SchemaInterface {
     hasContractMethod(m, "view")
   ) as string[]
 
-  const methods: ContractMethod[] = []
+  const methods: ContractMethodGroup[] = []
 
   if (viewMethods.length) {
     methods.push({
-      label: "View Methods",
-      methods: viewMethods,
+      heading: "View Methods",
+      methods: viewMethods.map(m => ({
+        title: m,
+        link: m,
+      })),
     })
   }
 
   if (changeMethods.length) {
     methods.push({
-      label: "Change Methods",
-      methods: changeMethods,
+      heading: "Change Methods",
+      methods: changeMethods.map(m => ({
+        title: m,
+        link: m,
+      })),
     })
   }
 
@@ -274,8 +280,8 @@ function buildInterface(contract: string, schema: JSONSchema): SchemaInterface {
       const suffix = def.allow.length - 1 === i
         ? ''
         : def.allow.length - 2 === i
-        ? ' & '
-        : ', '
+          ? ' & '
+          : ', '
       return group.replace(/^::/, '') + suffix
     }).join('')
 

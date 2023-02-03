@@ -1,9 +1,9 @@
-import { ContractMethod, JSONSchema } from '../types'
+import { ContractMethodGroup, JSONSchema } from '../types'
 import cw20Schema from './cw20-ics20.json'
 
 export interface SchemaInterface {
   schema: JSONSchema
-  methods: ContractMethod[],
+  methods: ContractMethodGroup[],
 }
 
 export function getSchema(contract?: string): SchemaInterface {
@@ -25,12 +25,18 @@ interface CosmWasmSchema {
 }
 
 function buildInterface(schema: CosmWasmSchema): SchemaInterface {
-  const methods: ContractMethod[] = []
-
-  methods.push({ label: 'initialize' })
+  const methods: ContractMethodGroup[] = []
 
   methods.push({
-    label: "Query",
+    heading: '',
+    methods: [{
+      title: 'initialize',
+      link: 'initialize'
+    }]
+  })
+
+  methods.push({
+    heading: "Query",
     methods: schema.query?.oneOf
       .map((m: JSONSchema) => m.properties)
       .map((p: JSONSchema) => {
@@ -41,13 +47,19 @@ function buildInterface(schema: CosmWasmSchema): SchemaInterface {
         }
         return Object.keys(p)
       })
-      .flat()
+      .flat().map((m: string) => ({
+        title: m,
+        link: m,
+      }))
   })
 
   methods.push({
-    label: 'Execute',
+    heading: 'Execute',
     methods: Object.keys(schema.execute?.definitions)
-      .filter(d => d.match(/Msg$/)).map(d => d.replace(/Msg$/, ''))
+      .filter(d => d.match(/Msg$/)).map(d => ({
+        title: d.replace(/Msg$/, ''),
+        link: `execute::${d}`
+      }))
   })
 
   return {
