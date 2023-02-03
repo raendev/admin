@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useParams } from "react-router-dom"
+import { Link } from "react-router-dom"
+import { useParams } from "../../utils"
 import { ContractNameForm, Logo, NearLogin } from '..'
 import { Sidebar } from './Sidebar'
 import css from './layout.module.css'
@@ -14,10 +15,10 @@ export const Layout: React.FC<React.PropsWithChildren<{
   showLogin?: 'near' | false
 }>> = ({
   children,
-  showLogin = 'near'
+  showLogin = 'near',
 }) => {
     const { isMobile } = useWindowDimensions()
-    const { method } = useParams<{ method: string }>()
+    const { method } = useParams()
     const [open, setOpenRaw] = useState(false)
     const [displaySidebar, setDisplaySidebar] = useState(false)
 

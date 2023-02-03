@@ -16,7 +16,7 @@ export function Home() {
         <div className="container">
           <h1>RAEN makes it easy to explore contracts on NEAR.</h1>
           <p className={css.lead}>
-            Enter a contract name below (i.e. <Link to="/counter.raendev.testnet">counter.raendev.testnet</Link>)
+            Enter a contract name below (i.e. <Link to="/near/counter.raendev.testnet">counter.raendev.testnet</Link>)
           </p>
           <ContractNameForm autoFocus />
         </div>
@@ -36,7 +36,7 @@ export function Home() {
           {featuredContracts.map(([contract, description]) => (
             <li key={contract}>
               <h3>
-                <Link to={contract}>
+                <Link to={`/near/${contract}`}>
                   <WithWBRs word={contract} breakOn="." />
                 </Link>
               </h3>

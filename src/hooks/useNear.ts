@@ -1,6 +1,6 @@
 import equal from 'fast-deep-equal'
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useParams } from "../utils"
 import {
   ContractMethod,
   ContractInterface,
@@ -34,7 +34,7 @@ type NearInterface = ContractInterface & SchemaInterface & { stale?: true }
  * If no `contract` in url params, returns blanks
  */
 export default function useNear(): NearInterface | typeof stub {
-  const { contract } = useParams<{ contract: ContractName }>()
+  const { nearContract: contract } = useParams()
   const [initialSchema] = useState(getSchemaCached(contract))
   const [cache, setCache] = useState<Record<ContractName, NearInterface>>(
     (!contract || !initialSchema) ? {} : {

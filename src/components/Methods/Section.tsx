@@ -1,17 +1,36 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams } from "../../utils";
 import { Root as Collapsible, Trigger, Content } from '@radix-ui/react-collapsible';
 import { Method } from './Method'
 import css from './section.module.css';
 
+/**
+ * A collapsible Sidebar section. Normally, you need to pass both a `heading`
+ * and `methods`, and all the methods will be nested under the `heading`. But!
+ * You can also pass JUST a `heading`, and it will be rendered AS a method, for
+ * methods that don't fit in any particular category.
+ */
 export const Section: React.FC<React.PropsWithChildren<{
   heading: string,
-  methods: string[]
+  methods?: string[]
 }>> = ({ heading, methods }) => {
   const [open, setOpen] = useState(true)
-  const { contract, method: currentMethod } = useParams<{ contract: string, method: string }>()
+  const { nearContract, cwContract, method: currentMethod } = useParams()
+  const contract = nearContract ?? cwContract
 
   if (!contract) return null
+
+  // can pass only heading to render it as a Method
+  if (!methods) {
+    return (
+      <Method
+        contract={contract}
+        isCurrentMethod={heading === currentMethod}
+        method={heading}
+        protocol={nearContract ? 'near' : 'cw'}
+      />
+    )
+  }
 
   return (
     <Collapsible
@@ -33,9 +52,10 @@ export const Section: React.FC<React.PropsWithChildren<{
         {methods.map(method =>
           <Method
             key={method}
-            method={method}
             contract={contract}
             isCurrentMethod={method === currentMethod}
+            method={method}
+            protocol={nearContract ? 'near' : 'cw'}
           />
         )}
       </Content>

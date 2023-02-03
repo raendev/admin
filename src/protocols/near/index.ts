@@ -6,6 +6,7 @@ if (typeof window !== "undefined") window.Buffer = Buffer
 if (typeof global !== "undefined") global.Buffer = Buffer
 
 export * from './schema'
+export * from '../types'
 
 const mainnetConfig = {
   networkId: "mainnet",

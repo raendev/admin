@@ -2,12 +2,12 @@ import * as naj from "near-api-js"
 import { init } from "."
 import { readCustomSection } from "wasm-walrus-tools"
 import { ContractCodeView } from "near-api-js/lib/providers/provider"
-import { JSONSchema7 } from "json-schema"
 import * as localStorage from '../../utils/localStorage'
+import { ContractMethod, JSONSchema } from '../types'
 
-const fetchSchemaCache: Record<string, Promise<JSONSchema7>> = {}
+const fetchSchemaCache: Record<string, Promise<JSONSchema>> = {}
 
-export async function fetchSchema(contract: string): Promise<JSONSchema7> {
+export async function fetchSchema(contract: string): Promise<JSONSchema> {
   const cacheKey = `fetchSchema:${contract}`
 
   fetchSchemaCache[cacheKey] = fetchSchemaCache[cacheKey] ?? (async () => {
@@ -31,7 +31,7 @@ export async function fetchSchema(contract: string): Promise<JSONSchema7> {
     const schema = JSON.parse(urlOrData)
     localStorage.set(contract, schema)
 
-    // TODO validate schema adheres to JSONSchema7
+    // TODO validate schema adheres to JSONSchema
     return schema
   })()
 
@@ -94,13 +94,13 @@ type MethodDefinition = {
   properties?: {
     args: {
       additionalProperties: boolean
-      properties: Record<string, JSONSchema7>
+      properties: Record<string, JSONSchema>
       required?: string[]
       type?: string
     }
     options?: {
       additionalProperties: boolean
-      properties: Record<string, JSONSchema7>
+      properties: Record<string, JSONSchema>
       required?: string[]
       type?: string
     }
@@ -109,15 +109,10 @@ type MethodDefinition = {
   type?: string
 }
 
-export interface ContractMethod {
-  label: string
-  methods: string[]
-}
-
 export interface SchemaInterface {
-  schema: JSONSchema7
+  schema: JSONSchema
   methods: ContractMethod[],
-  getMethod: (methodName: string | undefined) => JSONSchema7 | undefined
+  getMethod: (methodName: string | undefined) => JSONSchema | undefined
   getDefinition: (methodName: string) => MethodDefinition | undefined
   /**
    * Check if given method can be called by an account.
@@ -156,7 +151,7 @@ const inMemorySchemaCache: Record<string, InMemoryCachedSchema | undefined> = {}
 export function getSchemaCached(contract?: string): undefined | InMemoryCachedSchema {
   if (!contract) return undefined
   if (inMemorySchemaCache[contract]) return inMemorySchemaCache[contract]
-  const schema = localStorage.get(contract) as JSONSchema7 | undefined
+  const schema = localStorage.get(contract) as JSONSchema | undefined
   if (!schema) return undefined
   inMemorySchemaCache[contract] = {
     loadedAt: new Date().getTime(),
@@ -172,7 +167,7 @@ export async function getSchema(contract: string): Promise<SchemaInterface> {
 
 const canCallCache: Record<string, Promise<string | string[]>> = {}
 
-function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface {
+function buildInterface(contract: string, schema: JSONSchema): SchemaInterface {
   const { near } = init(contract)
 
   function hasContractMethod(m: string, equalTo?: "change" | "view"): boolean {
@@ -208,7 +203,7 @@ function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface 
     })
   }
 
-  function getMethod(m?: string | undefined): JSONSchema7 | undefined {
+  function getMethod(m?: string | undefined): JSONSchema | undefined {
     if (!m) return undefined
     if (!hasContractMethod(m)) return undefined
     return {

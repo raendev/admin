@@ -3,6 +3,7 @@ import snake from "to-snake-case";
 import { Link } from "react-router-dom";
 import { Root as Tooltip, Portal, Trigger, Content, Arrow } from '@radix-ui/react-tooltip';
 import useNear from '../../hooks/useNear';
+import useCosmWasm from '../../hooks/useCosmWasm';
 import css from './methods.module.css';
 import { Crown } from './Crown'
 
@@ -45,10 +46,11 @@ const Tip: React.FC<{ method: string }> = ({ method }) => {
 };
 
 export const Method: React.FC<{
-  method: string
   contract?: string
   isCurrentMethod: boolean
-}> = ({ method, contract, isCurrentMethod }) => {
+  method: string
+  protocol: 'near' | 'cw'
+}> = ({ contract, isCurrentMethod, method, protocol }) => {
   const { canCall, currentUser } = useNear()
   const [allowed, setAllowed] = useState<boolean>(true)
   const [whyForbidden, setWhyForbidden] = useState<string>()
@@ -78,7 +80,7 @@ export const Method: React.FC<{
   return (
     <Link
       aria-controls="mainContent"
-      to={`/${contract}/${method}`}
+      to={`/${protocol}/${contract}/${method}`}
       onClick={() => {
         // clear any params set by NEAR Wallet when navigating to new method
         window.history.pushState(null, '',

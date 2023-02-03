@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useParams } from "react-router-dom"
+import { useParams } from "../../utils"
 import { init } from "../../protocols/near"
 import useNear from "../../hooks/useNear"
 import { Layout, NotFound } from ".."
@@ -7,14 +7,14 @@ import { Form } from "./Form/Form"
 
 export function NearContract() {
   const { schema } = useNear()
-  const { contract } = useParams<{ contract: string }>()
+  const { nearContract } = useParams()
   let errorMessage: string | null = null
 
-  if (!contract) {
-    errorMessage = "No `contract` param provided; how is this possible?"
+  if (!nearContract) {
+    errorMessage = "No `nearContract` param provided; how is this possible?"
   } else {
     try {
-      init(contract)
+      init(nearContract)
     } catch (e: unknown) {
       if (e instanceof Error) {
         errorMessage = e.message

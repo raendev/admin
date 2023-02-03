@@ -3,7 +3,7 @@ import SyntaxHighlighter from 'react-syntax-highlighter'
 import { anOldHope as dark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { JsonRpcProvider, FinalExecutionStatus, FinalExecutionStatusBasic } from 'near-api-js/lib/providers';
 import snake from "to-snake-case";
-import { useParams } from "react-router-dom"
+import { useParams } from "../../../utils"
 import useNear from "../../../hooks/useNear"
 import useWindowDimensions from '../../../hooks/useWindowDimensions'
 import { WithWBRs, JsonSchemaForm, JsonSchemaFormDataWrapped } from '../..'
@@ -87,7 +87,7 @@ const Display: React.FC<React.PropsWithChildren<{
 export function Form() {
   const { near, canCall, config, currentUser, getMethod, getDefinition } = useNear()
   const { isMobile } = useWindowDimensions()
-  const { contract, method } = useParams<{ contract: string, method: string }>()
+  const { nearContract: contract, method } = useParams()
   const def = method ? getDefinition(method) : undefined
   const [result, setResult] = useState<string>()
   const [tx, setTx] = useState<string>()
@@ -204,14 +204,13 @@ export function Form() {
         <h1 style={{ margin: 0 }}>
           <WithWBRs word={contract} breakOn="." />
         </h1>
-        {!method && (
+        {!method ? (
           <p>
             Inspect <strong><WithWBRs word={contract} breakOn="." /></strong> using a schema built with <a href="https://raen.dev/admin">RAEN</a> and stored on <a href="https://near.org">NEAR</a>. Select a method from {isMobile ? 'the menu above' : 'the sidebar'} to get started.
           </p>
-        )}
-        {!schema && (
+        ) : !schema && (
           <p>
-            Unknown method <strong><WithWBRs word={snake(method!) ?? ''} /></strong> 🤔
+            Unknown method <strong><WithWBRs word={snake(method) ?? ''} /></strong> 🤔
           </p>
         )}
       </>

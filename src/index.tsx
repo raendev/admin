@@ -16,9 +16,14 @@ root.render(
       <HashRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/cw" element={<CosmWasmContract />} />
-          <Route path="/:contract" element={<NearContract />} />
-          <Route path="/:contract/:method" element={<NearContract />} />
+          <Route path="near">
+            <Route path=":nearContract" element={<NearContract />} />
+            <Route path=":nearContract/:method" element={<NearContract />} />
+          </Route>
+          <Route path="cw">
+            <Route path=":cwContract" element={<CosmWasmContract />} />
+            <Route path=":cwContract/:method" element={<CosmWasmContract />} />
+          </Route>
         </Routes>
       </HashRouter>
     </TooltipProvider>
