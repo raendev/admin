@@ -48,7 +48,7 @@ function encodeData(formData: JsonSchemaFormData): { data: string } {
 }
 
 function allFilled(formData?: JsonSchemaFormData, required?: string[]) {
-  if (!required) return true
+  if (!required || !required.length) return true
   if (!formData) return false
   return required.reduce(
     (acc, field) => acc && ![undefined, null, ''].includes(formData.args[field]),
