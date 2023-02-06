@@ -3,16 +3,17 @@ import snake from "to-snake-case";
 import { Link } from "react-router-dom";
 import { Root as Tooltip, Portal, Trigger, Content, Arrow } from '@radix-ui/react-tooltip';
 import useNear from '../../hooks/useNear';
+import { ContractMethod } from '../../protocols/types'
 import css from './methods.module.css';
 import { Crown } from './Crown'
 
-const Tip: React.FC<{ method: string }> = ({ method }) => {
+const Tip: React.FC<{ method: ContractMethod }> = ({ method }) => {
   const { getDefinition } = useNear()
   const [restrictedTo, setRestrictedTo] = useState<string>()
 
   useEffect(() => {
     setRestrictedTo(
-      getDefinition(method)?.allow
+      getDefinition(method.title)?.allow
         ?.map(x => x.replace(/^::/, ''))
         ?.join(', ')
     )
@@ -45,10 +46,11 @@ const Tip: React.FC<{ method: string }> = ({ method }) => {
 };
 
 export const Method: React.FC<{
-  method: string
   contract?: string
   isCurrentMethod: boolean
-}> = ({ method, contract, isCurrentMethod }) => {
+  method: ContractMethod
+  protocol: 'near' | 'cw'
+}> = ({ contract, isCurrentMethod, method, protocol }) => {
   const { canCall, currentUser } = useNear()
   const [allowed, setAllowed] = useState<boolean>(true)
   const [whyForbidden, setWhyForbidden] = useState<string>()
@@ -56,7 +58,7 @@ export const Method: React.FC<{
   useEffect(() => {
     (async () => {
       const user = await currentUser
-      canCall(method, user?.accountId).then(can => {
+      canCall(method.title, user?.accountId).then(can => {
         setAllowed(can[0])
         setWhyForbidden(can[1] || undefined)
       })
@@ -69,7 +71,7 @@ export const Method: React.FC<{
         className={allowed ? undefined : css.forbidden}
         title={allowed ? undefined : `Forbidden: ${whyForbidden}`}
       >
-        {snake(method)}
+        {snake(method.title)}
         <Tip method={method} />
       </div>
     )
@@ -78,7 +80,7 @@ export const Method: React.FC<{
   return (
     <Link
       aria-controls="mainContent"
-      to={`/${contract}/${method}`}
+      to={`/${protocol}/${contract}/${method.link}`}
       onClick={() => {
         // clear any params set by NEAR Wallet when navigating to new method
         window.history.pushState(null, '',
@@ -88,7 +90,7 @@ export const Method: React.FC<{
       className={allowed ? undefined : css.forbidden}
       title={allowed ? undefined : `Forbidden: ${whyForbidden}`}
     >
-      {snake(method)}
+      {snake(method.title)}
       <Tip method={method} />
     </Link>
   )

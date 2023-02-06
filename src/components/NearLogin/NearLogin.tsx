@@ -3,9 +3,9 @@ import { ConnectedWalletAccount } from 'near-api-js'
 import useNear from "../../hooks/useNear"
 import { Dropdown } from ".."
 import { Wallet } from './Wallet'
-import css from './login.module.css'
+import css from './nearlogin.module.css'
 
-export function Login() {
+export function NearLogin() {
   const { currentUser, signIn, signOut } = useNear()
   const [user, setUser] = useState<ConnectedWalletAccount>()
   const [loaded, setLoaded] = useState(false)

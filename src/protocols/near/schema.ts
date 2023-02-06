@@ -2,12 +2,12 @@ import * as naj from "near-api-js"
 import { init } from "."
 import { readCustomSection } from "wasm-walrus-tools"
 import { ContractCodeView } from "near-api-js/lib/providers/provider"
-import { JSONSchema7 } from "json-schema"
-import * as localStorage from './localStorage'
+import * as localStorage from '../../utils/localStorage'
+import { ContractMethodGroup, JSONSchema } from '../types'
 
-const fetchSchemaCache: Record<string, Promise<JSONSchema7>> = {}
+const fetchSchemaCache: Record<string, Promise<JSONSchema>> = {}
 
-export async function fetchSchema(contract: string): Promise<JSONSchema7> {
+export async function fetchSchema(contract: string): Promise<JSONSchema> {
   const cacheKey = `fetchSchema:${contract}`
 
   fetchSchemaCache[cacheKey] = fetchSchemaCache[cacheKey] ?? (async () => {
@@ -31,7 +31,7 @@ export async function fetchSchema(contract: string): Promise<JSONSchema7> {
     const schema = JSON.parse(urlOrData)
     localStorage.set(contract, schema)
 
-    // TODO validate schema adheres to JSONSchema7
+    // TODO validate schema adheres to JSONSchema
     return schema
   })()
 
@@ -79,8 +79,6 @@ async function fetchJsonAddressOrData(contract: string, near: naj.Near): Promise
   return Buffer.from(decompressedData).toString("utf8");
 }
 
-export type Schema = { schema: { $ref: string } & JSONSchema7 }
-
 function hasContractMethodProperty(obj: {}): obj is { contractMethod: "change" | "view" } {
   return 'contractMethod' in obj
 }
@@ -96,13 +94,13 @@ type MethodDefinition = {
   properties?: {
     args: {
       additionalProperties: boolean
-      properties: Record<string, JSONSchema7>
+      properties: Record<string, JSONSchema>
       required?: string[]
       type?: string
     }
     options?: {
       additionalProperties: boolean
-      properties: Record<string, JSONSchema7>
+      properties: Record<string, JSONSchema>
       required?: string[]
       type?: string
     }
@@ -112,11 +110,9 @@ type MethodDefinition = {
 }
 
 export interface SchemaInterface {
-  schema: JSONSchema7
-  changeMethods: string[]
-  viewMethods: string[]
-  methods: Record<string, Schema>
-  getMethod: (methodName: string) => Schema | undefined
+  schema: JSONSchema
+  methods: ContractMethodGroup[],
+  getMethod: (methodName: string | undefined) => JSONSchema | undefined
   getDefinition: (methodName: string) => MethodDefinition | undefined
   /**
    * Check if given method can be called by an account.
@@ -155,7 +151,7 @@ const inMemorySchemaCache: Record<string, InMemoryCachedSchema | undefined> = {}
 export function getSchemaCached(contract?: string): undefined | InMemoryCachedSchema {
   if (!contract) return undefined
   if (inMemorySchemaCache[contract]) return inMemorySchemaCache[contract]
-  const schema = localStorage.get(contract) as JSONSchema7 | undefined
+  const schema = localStorage.get(contract) as JSONSchema | undefined
   if (!schema) return undefined
   inMemorySchemaCache[contract] = {
     loadedAt: new Date().getTime(),
@@ -171,7 +167,7 @@ export async function getSchema(contract: string): Promise<SchemaInterface> {
 
 const canCallCache: Record<string, Promise<string | string[]>> = {}
 
-function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface {
+function buildInterface(contract: string, schema: JSONSchema): SchemaInterface {
   const { near } = init(contract)
 
   function hasContractMethod(m: string, equalTo?: "change" | "view"): boolean {
@@ -191,25 +187,35 @@ function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface 
     hasContractMethod(m, "view")
   ) as string[]
 
-  const methods = Object.keys(schema?.definitions ?? {}).filter(
-    m => hasContractMethod(m)
-  ).reduce(
-    (all, methodName) => ({
-      ...all,
-      [methodName]: {
-        schema: {
-          $ref: `#/definitions/${methodName}`,
-          ...schema,
-        }
-      }
-    }),
-    {} as Record<string, Schema>
-  )
+  const methods: ContractMethodGroup[] = []
 
-  function getMethod(m?: string | null): Schema | undefined {
+  if (viewMethods.length) {
+    methods.push({
+      heading: "View Methods",
+      methods: viewMethods.map(m => ({
+        title: m,
+        link: m,
+      })),
+    })
+  }
+
+  if (changeMethods.length) {
+    methods.push({
+      heading: "Change Methods",
+      methods: changeMethods.map(m => ({
+        title: m,
+        link: m,
+      })),
+    })
+  }
+
+  function getMethod(m?: string | undefined): JSONSchema | undefined {
     if (!m) return undefined
     if (!hasContractMethod(m)) return undefined
-    return methods[m]
+    return {
+      $ref: `#/definitions/${m}`,
+      ...schema,
+    }
   }
 
   function getDefinition(m?: string): MethodDefinition | undefined {
@@ -274,8 +280,8 @@ function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface 
       const suffix = def.allow.length - 1 === i
         ? ''
         : def.allow.length - 2 === i
-        ? ' & '
-        : ', '
+          ? ' & '
+          : ', '
       return group.replace(/^::/, '') + suffix
     }).join('')
 
@@ -286,8 +292,6 @@ function buildInterface(contract: string, schema: JSONSchema7): SchemaInterface 
 
   return {
     schema,
-    viewMethods,
-    changeMethods,
     methods,
     getMethod,
     getDefinition,

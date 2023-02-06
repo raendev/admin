@@ -1,13 +1,14 @@
 import equal from 'fast-deep-equal'
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useParams } from "../utils"
 import {
+  ContractMethodGroup,
   ContractInterface,
   init,
   getSchema,
   getSchemaCached,
   SchemaInterface,
-} from "../near"
+} from "../protocols/near"
 
 type ContractName = string
 
@@ -19,9 +20,7 @@ const stub = {
   signIn: () => { },
   signOut: () => { },
   schema: undefined,
-  changeMethods: [] as string[],
-  viewMethods: [] as string[],
-  methods: {},
+  methods: [] as ContractMethodGroup[],
   getMethod: () => undefined,
   getDefinition: () => undefined,
   canCall: () => Promise.resolve([true, undefined] as const),
@@ -35,7 +34,7 @@ type NearInterface = ContractInterface & SchemaInterface & { stale?: true }
  * If no `contract` in url params, returns blanks
  */
 export default function useNear(): NearInterface | typeof stub {
-  const { contract } = useParams<{ contract: ContractName }>()
+  const { nearContract: contract } = useParams()
   const [initialSchema] = useState(getSchemaCached(contract))
   const [cache, setCache] = useState<Record<ContractName, NearInterface>>(
     (!contract || !initialSchema) ? {} : {

@@ -1,14 +1,16 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { init } from "../../near"
-import { useNavigate, useParams } from "react-router-dom";
+import { init } from "../../protocols/near"
+import { useParams } from "../../utils"
+import { useNavigate } from "react-router-dom";
 import css from "./form.module.css";
 
-export const ContractForm: React.FC<{ autoFocus?: boolean }> = ({
+export const ContractNameForm: React.FC<{ autoFocus?: boolean }> = ({
   autoFocus = false,
 }) => {
-  const { contract } = useParams<{ contract: string }>()
+  const { nearContract, cwContract } = useParams()
+  const contract = nearContract ?? cwContract
   const inputRef = useRef<HTMLInputElement>(null)
-  const [custom, setCustomRaw] = useState<string>()
+  const [custom, setCustomRaw] = useState<string>(contract ?? '')
   const [error, setError] = useState<string>()
   const navigate = useNavigate()
 
@@ -28,7 +30,11 @@ export const ContractForm: React.FC<{ autoFocus?: boolean }> = ({
       if (!custom) return
 
       try {
-        navigate(`/${init(custom).contract}`)
+        if (cwContract) {
+          navigate(`/cw/${custom}`)
+        } else {
+          navigate(`/near/${init(custom).contract}`)
+        }
       } catch (e: unknown) {
         if (e instanceof Error) {
           setError(e.message)
@@ -52,7 +58,6 @@ export const ContractForm: React.FC<{ autoFocus?: boolean }> = ({
         </label>
         <input
           className={css.input}
-          defaultValue={contract}
           id="customContract"
           value={custom}
           ref={inputRef}

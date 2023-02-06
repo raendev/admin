@@ -6,6 +6,7 @@ if (typeof window !== "undefined") window.Buffer = Buffer
 if (typeof global !== "undefined") global.Buffer = Buffer
 
 export * from './schema'
+export * from '../types'
 
 const mainnetConfig = {
   networkId: "mainnet",
@@ -59,8 +60,8 @@ export function init(contract: string): ContractInterface {
   const config = /near$/.test(contract)
     ? mainnetConfig
     : /testnet$/.test(contract) || /dev-[0-9]+-[0-9]+/.test(contract)
-    ? testnetConfig
-    : undefined
+      ? testnetConfig
+      : undefined
 
   if (!config) throw new UnknownNetworkError(contract)
 

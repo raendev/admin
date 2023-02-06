@@ -1,18 +1,18 @@
 import React from "react";
 import useNear from '../../hooks/useNear';
+import useCosmWasm from '../../hooks/useCosmWasm';
 import { Section } from './Section';
 
 export const Methods = () => {
-  const { changeMethods, viewMethods } = useNear()
+  const { methods: nearMethods } = useNear()
+  const { methods: cwMethods } = useCosmWasm()
 
-  return (
-    <>
-      {viewMethods.length > 0 && (
-        <Section heading="View Methods" methods={viewMethods} />
-      )}
-      {changeMethods.length > 0 && (
-        <Section heading="Change Methods" methods={changeMethods} />
-      )}
-    </>
-  )
+  // only one of these will have content
+  const methods = nearMethods.concat(cwMethods)
+
+  return <>{
+    methods.map(contractMethod => (
+      <Section key={contractMethod.heading} {...contractMethod} />
+    ))
+  }</>
 }
