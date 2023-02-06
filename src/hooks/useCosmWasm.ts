@@ -1,14 +1,10 @@
-import { useState } from "react"
 import { useParams } from "../utils"
 import {
-  init,
   ContractMethodGroup,
   ContractInterface,
   getSchema,
   SchemaInterface,
 } from "../protocols/cw"
-
-type ContractName = string
 
 const stub: CosmWasmInterface = {
   contract: '',
