@@ -16,6 +16,9 @@ root.render(
       <HashRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          {/* keeping NearContract available at root route, for historical support. Not sure it's worth it, tbqh! */}
+          <Route path=":nearContract" element={<NearContract />} />
+          <Route path=":nearContract/:method" element={<NearContract />} />
           <Route path="near">
             <Route path=":nearContract" element={<NearContract />} />
             <Route path=":nearContract/:method" element={<NearContract />} />
